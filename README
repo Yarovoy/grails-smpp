@@ -1,0 +1,2 @@
+Grails plug-in for working with SMPP protocol.
+Uses JSMPP opensource library (http://code.google.com/p/jsmpp/) for communacating with SMPP channel.
