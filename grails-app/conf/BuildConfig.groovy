@@ -26,8 +26,10 @@ grails.project.dependency.resolution = {
 		// specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
 
 		// runtime 'mysql:mysql-connector-java:5.1.5'
+		runtime 'org.slf4j:slf4j-api:1.6.4'
+		runtime 'org.slf4j:slf4j-simple:1.6.4'
+
 		runtime 'com.googlecode.jsmpp:jsmpp:2.1.0'
-		//        runtime 'org.jsmpp:jsmpp:2.2.0-SNAPSHOT'
 	}
 
 	plugins {
