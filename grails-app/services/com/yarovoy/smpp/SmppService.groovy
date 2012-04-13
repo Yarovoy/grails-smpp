@@ -14,15 +14,18 @@ class SmppService implements MessageReceiverListener
 	// Constants
 	// ----------------------------------------------------------------------
 
-	//	public static final Pattern LATIN_BASE_PATTERN = ~/.*[\u0000-\u007e]/.*
-	public static final Pattern LATIN_EXTENDED_PATTERN = ~/.*[\u007f-\u00ff].*/
-	public static final Pattern UNICODE_PATTERN = ~/.*[\u0100-\ufffe].*/
+	static final Pattern LATIN_EXTENDED_PATTERN = ~/.*[\u007f-\u00ff].*/
+	static final Pattern UNICODE_PATTERN = ~/.*[\u0100-\ufffe].*/
+
+	static final GeneralDataCoding dataCoding = new GeneralDataCoding(8)
+
+	static final int LATIN_BASIC_MESSAGE_LENGTH = 160
+	static final int LATIN_EXTENDED_MESSAGE_LENGTH = 140
+	static final int UNICODE_MESSAGE_LENGTH = 70
 
 	// ----------------------------------------------------------------------
 	// Private props
 	// ----------------------------------------------------------------------
-
-	final GeneralDataCoding dataCoding = new GeneralDataCoding(8)
 
 	SMPPSession _smppSession
 	String _sessionId
@@ -133,13 +136,6 @@ class SmppService implements MessageReceiverListener
 		null
 	}
 
-	List<String> splitToChunks(String text)
-	{
-		// Unicode representation.
-
-		text.split("(?<=\\G.{1})") as List<String>
-	}
-
 	Charset detectEncoding(String text)
 	{
 		if (text == null)
@@ -157,6 +153,20 @@ class SmppService implements MessageReceiverListener
 		}
 
 		Charset.US_ASCII
+	}
+
+	List<String> splitToChunks(String text, Charset charset)
+	{
+		if (charset == Charset.US_ASCII)
+		{
+			return text.split("(?<=\\G.{$LATIN_BASIC_MESSAGE_LENGTH})") as List<String>
+		}
+		else if (charset == Charset.ISO_8859_1)
+		{
+			return text.split("(?<=\\G.{$LATIN_EXTENDED_MESSAGE_LENGTH})") as List<String>
+		}
+
+		text.split("(?<=\\G.{$UNICODE_MESSAGE_LENGTH})") as List<String>
 	}
 
 	// ----------------------------------------------------------------------

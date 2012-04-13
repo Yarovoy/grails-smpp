@@ -3,8 +3,8 @@ package com.yarovoy.smpp
 public enum Charset
 {
 
-	ISO_8859_1('ISO-8859-1'),
 	US_ASCII('US-ASCII'),
+	ISO_8859_1('ISO-8859-1'),
 	UTF_16BE('UTF-16BE')
 
 	private static Map<String, Charset> valuesToEnum = [:]
