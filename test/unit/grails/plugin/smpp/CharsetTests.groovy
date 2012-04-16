@@ -1,7 +1,9 @@
-package com.yarovoy.smpp
+package grails.plugin.smpp
 
 import grails.test.mixin.TestFor
 import org.junit.Test
+import grails.plugin.smpp.Charset
+import grails.plugin.smpp.SmppService
 
 @TestFor(SmppService)
 class CharsetTests

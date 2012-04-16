@@ -1,4 +1,4 @@
-package com.yarovoy.smpp
+package grails.plugin.smpp
 
 public enum Charset
 {

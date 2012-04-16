@@ -1,32 +1,35 @@
-package com.yarovoy.smpp
+package grails.plugin.smpp
 
 import grails.test.mixin.TestFor
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.jsmpp.bean.Alphabet
+import org.jsmpp.bean.DataCoding
+import org.jsmpp.bean.GeneralDataCoding
+import org.jsmpp.bean.MessageClass
 
 @TestFor(SmppService)
 class SmppServiceTests
 {
 
 	String cyrillicAlphabet =
-		'АаБбВвГгДдЕеЁёЖжЗзИи' +
-				'ЙйКкЛлМмНнОоПпРрСсТт' +
-				'УуФфХхЦцЧчШшЩщЪъЫыЬь' +
+		'АаБбВвГгДд ЕеЁёЖжЗзИи' +
+				'ЙйКкЛлМмНн ОоПпРрСсТт' +
+				'УуФфХхЦцЧч ШшЩщЪъЫыЬь' +
 				'ЭэЮюЯя'
 
 	String latinAlphabet =
-		'AaBbCcDdEeFfGgHhIiJj' +
-				'KkLlMmNnOoPpQqRrSsTt' +
-				'UuVvWwXxYyZz'
+		'AaBbCcDdEe FfGgHhIiJj ' +
+				'KkLlMmNnOo PpQqRrSsTt ' +
+				'UuVvWwXxYy Zz '
 
-	String unicode70Symbols = cyrillicAlphabet + '1234'
-	String unicode140Symbols = cyrillicAlphabet + cyrillicAlphabet + '12345678'
-	String latin160Symbols = latinAlphabet + latinAlphabet + latinAlphabet + '1234'
+	String unicode70Symbols = cyrillicAlphabet + '1'
+	String unicode140Symbols = cyrillicAlphabet + cyrillicAlphabet + '12'
+	String latin160Symbols = latinAlphabet + latinAlphabet + '1234567890 1234567890 1234567890 1234567890 '
 	String latin320Symbols = latin160Symbols + latin160Symbols
 	String extendedLatin140 = latinAlphabet + latinAlphabet +
-			'12345678901234567890' +
-			'1234567890ÀÆÐÑþÿ'
+			' 1234567890 12345678 Àþÿ'
 	String extendedLatin280 = extendedLatin140 + extendedLatin140
 
 	SmppService smppService
@@ -63,27 +66,34 @@ class SmppServiceTests
 	}*/
 
 	@Test
-	void testDetectCharset()
+	void testDetectAlphabet()
 	{
-		assertEquals(Charset.UTF_16BE, smppService.detectEncoding(unicode70Symbols))
-		assertEquals(Charset.UTF_16BE, smppService.detectEncoding("This is Latin and a little bit of Юnicode."))
+		assertEquals(Alphabet.ALPHA_UCS2, smppService.detectAlphabet(unicode70Symbols))
+		assertEquals(Alphabet.ALPHA_UCS2, smppService.detectAlphabet("This is Latin and a little bit of Юnicode."))
 		assertEquals(
-				Charset.ISO_8859_1,
-				smppService.detectEncoding(
+				Alphabet.ALPHA_8_BIT,
+				smppService.detectAlphabet(
 						"This is the Extended Latin only with some special symbols: À, Õ, ÿ."
 				)
 		)
-		assertEquals(Charset.US_ASCII, smppService.detectEncoding(latin160Symbols))
+		assertEquals(Alphabet.ALPHA_DEFAULT, smppService.detectAlphabet(latin160Symbols))
 	}
 
 	@Test
 	void testSplitToChunks()
 	{
+//		println unicode70Symbols.size()
+//		println unicode140Symbols.size()
+//		println latin160Symbols.size()
+//		println latin320Symbols.size()
+//		println extendedLatin140.size()
+//		println extendedLatin280.size()
+
 		assertEquals(
 				1,
 				smppService.splitToChunks(
 						unicode70Symbols,
-						smppService.detectEncoding(
+						smppService.detectAlphabet(
 								unicode70Symbols
 						)
 				).size()
@@ -93,7 +103,7 @@ class SmppServiceTests
 				2,
 				smppService.splitToChunks(
 						unicode140Symbols,
-						smppService.detectEncoding(
+						smppService.detectAlphabet(
 								unicode140Symbols
 						)
 				).size()
@@ -103,7 +113,7 @@ class SmppServiceTests
 				1,
 				smppService.splitToChunks(
 						latin160Symbols,
-						smppService.detectEncoding(
+						smppService.detectAlphabet(
 								latin160Symbols
 						)
 				).size()
@@ -113,7 +123,7 @@ class SmppServiceTests
 				2,
 				smppService.splitToChunks(
 						latin320Symbols,
-						smppService.detectEncoding(
+						smppService.detectAlphabet(
 								latin320Symbols
 						)
 				).size()
@@ -123,7 +133,7 @@ class SmppServiceTests
 				1,
 				smppService.splitToChunks(
 						extendedLatin140,
-						smppService.detectEncoding(
+						smppService.detectAlphabet(
 								extendedLatin140
 						)
 				).size()
@@ -133,14 +143,14 @@ class SmppServiceTests
 				2,
 				smppService.splitToChunks(
 						extendedLatin280,
-						smppService.detectEncoding(
+						smppService.detectAlphabet(
 								extendedLatin280
 						)
 				).size()
 		)
 	}
 
-	/*@Test
+	@Test
 	void testSend()
 	{
 		smppService.connectAndBind(
@@ -151,17 +161,25 @@ class SmppServiceTests
 				SmppConfig.SYSTEM_TYPE
 		)
 
+		/*smppService.send(
+				SmppConfig.FROM,
+				SmppConfig.TO_PHONE,
+				unicode70Symbols
+		)*/
+
+		/*smppService.send(
+				SmppConfig.FROM,
+				SmppConfig.TO_PHONE,
+				latin160Symbols
+		)*/
+
 		smppService.send(
-				'MFComm',
-				'79162778505',
-				longUnicodeMessage)
+				SmppConfig.FROM,
+				SmppConfig.TO_PHONE,
+				extendedLatin140
+		)
 
 		smppService.unbindAndClose()
-	}*/
+	}
 
-	/*@Test
-	void testSplitToChunks()
-	{
-		println smppService.splitToChunks('Тест тест тест тест')
-	}*/
 }

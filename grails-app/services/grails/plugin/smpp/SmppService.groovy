@@ -1,6 +1,13 @@
-package com.yarovoy.smpp
+package grails.plugin.smpp
 
+import com.yarovoy.smpp.SmppException
+import org.jsmpp.InvalidResponseException
+import org.jsmpp.PDUException
+import org.jsmpp.extra.NegativeResponseException
+import org.jsmpp.extra.ResponseTimeoutException
 import org.jsmpp.extra.SessionState
+import org.jsmpp.util.RelativeTimeFormatter
+import org.jsmpp.util.TimeFormatter
 
 import java.util.regex.Pattern
 
@@ -17,7 +24,7 @@ class SmppService implements MessageReceiverListener
 	static final Pattern LATIN_EXTENDED_PATTERN = ~/.*[\u007f-\u00ff].*/
 	static final Pattern UNICODE_PATTERN = ~/.*[\u0100-\ufffe].*/
 
-	static final GeneralDataCoding dataCoding = new GeneralDataCoding(8)
+	static final String serviceType = 'CMT'
 
 	static final int LATIN_BASIC_MESSAGE_LENGTH = 160
 	static final int LATIN_EXTENDED_MESSAGE_LENGTH = 140
@@ -110,33 +117,111 @@ class SmppService implements MessageReceiverListener
 		_smppSession.unbindAndClose()
 	}
 
-	List<String> send(String from, String phone, String text)
+	List<String> send(String from, String phone, String text) throws PDUException,
+	                                                                 ResponseTimeoutException,
+	                                                                 InvalidResponseException,
+	                                                                 NegativeResponseException,
+	                                                                 IOException
 	{
-		String partId = _smppSession.submitShortMessage(
-				'',
-				TypeOfNumber.UNKNOWN,
-				NumberingPlanIndicator.UNKNOWN,
-				'MFComm',
-				TypeOfNumber.UNKNOWN,
-				NumberingPlanIndicator.UNKNOWN,
-				phone,
-				new ESMClass(),
-				(byte) 0,
-				(byte) 0,
-				null,
-				null,
-				new RegisteredDelivery(SMSCDeliveryReceipt.DEFAULT),
-				(byte) 0,
-				dataCoding,
-				(byte) 0,
-				text.getBytes('UTF-16BE')
+		if (!from)
+		{
+			new IllegalArgumentException('You must specify "from" parameter.')
+		}
+		if (!phone)
+		{
+			new IllegalArgumentException('You must specify "phone" parameter.')
+		}
+		if (!text)
+		{
+			new IllegalArgumentException('You must specify "text" parameter.')
+		}
+
+		final TimeFormatter timeFormatter = new RelativeTimeFormatter()
+
+		// Variables related to encoding.
+		final Alphabet alphabet = detectAlphabet(
+				text
 		)
 
-		// Выяснить, как оптавляется сообщение, порезанное на куски.
-		null
+		String charset
+		DataCoding dataCoding
+
+		if (alphabet == Alphabet.ALPHA_DEFAULT)
+		{
+			charset = 'US-ASCII'
+
+			dataCoding = new GeneralDataCoding(
+					false,
+					false,
+					MessageClass.CLASS0,
+					Alphabet.ALPHA_DEFAULT
+			)
+
+			println(dataCoding.value())
+			println(new GeneralDataCoding().value())
+		}
+		else if (alphabet == Alphabet.ALPHA_8_BIT)
+		{
+			charset = 'ISO-8859-1'
+
+			dataCoding = new GeneralDataCoding(
+					false,
+					false,
+					MessageClass.CLASS0,
+					Alphabet.ALPHA_8_BIT
+			)
+		}
+		else
+		{
+			charset = 'UTF-16BE'
+
+			dataCoding = new GeneralDataCoding(
+					false,
+					false,
+					MessageClass.CLASS0,
+					Alphabet.ALPHA_UCS2
+			)
+		}
+
+		// Variables related to the message.
+		final List<String> parts = splitToChunks(
+				text,
+				alphabet
+		)
+		final int partsNum = parts.size()
+		final List<String> partIds = []
+
+		if (partsNum > 1)
+		{
+			parts.eachWithIndex {String part, index ->
+			}
+		}
+		else
+		{
+			partIds << _smppSession.submitShortMessage(
+					serviceType,
+					TypeOfNumber.UNKNOWN,
+					NumberingPlanIndicator.UNKNOWN,
+					from,
+					TypeOfNumber.UNKNOWN,
+					NumberingPlanIndicator.UNKNOWN,
+					phone,
+					new ESMClass(),
+					(byte) 0, (byte) 1,
+					timeFormatter.format(new Date()),
+					null,
+					new RegisteredDelivery(SMSCDeliveryReceipt.DEFAULT),
+					(byte) 0,
+					dataCoding,
+					(byte) 0,
+					text.getBytes(charset)
+			)
+		}
+
+		partIds
 	}
 
-	Charset detectEncoding(String text)
+	Alphabet detectAlphabet(String text)
 	{
 		if (text == null)
 		{
@@ -145,23 +230,23 @@ class SmppService implements MessageReceiverListener
 
 		if (text.matches(UNICODE_PATTERN))
 		{
-			return Charset.UTF_16BE
+			return Alphabet.ALPHA_UCS2
 		}
 		else if (text.matches(LATIN_EXTENDED_PATTERN))
 		{
-			return Charset.ISO_8859_1
+			return Alphabet.ALPHA_8_BIT
 		}
 
-		Charset.US_ASCII
+		Alphabet.ALPHA_DEFAULT
 	}
 
-	List<String> splitToChunks(String text, Charset charset)
+	List<String> splitToChunks(String text, Alphabet alphabet)
 	{
-		if (charset == Charset.US_ASCII)
+		if (alphabet == Alphabet.ALPHA_DEFAULT)
 		{
 			return text.split("(?<=\\G.{$LATIN_BASIC_MESSAGE_LENGTH})") as List<String>
 		}
-		else if (charset == Charset.ISO_8859_1)
+		else if (alphabet == Alphabet.ALPHA_8_BIT)
 		{
 			return text.split("(?<=\\G.{$LATIN_EXTENDED_MESSAGE_LENGTH})") as List<String>
 		}
