@@ -1,20 +1,17 @@
 package grails.plugin.smpp
 
 import grails.test.mixin.TestFor
+import org.jsmpp.bean.Alphabet
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.jsmpp.bean.Alphabet
-import org.jsmpp.bean.DataCoding
-import org.jsmpp.bean.GeneralDataCoding
-import org.jsmpp.bean.MessageClass
 
 @TestFor(SmppService)
 class SmppServiceTests
 {
 
 	String cyrillicAlphabet =
-		'АаБбВвГгДд ЕеЁёЖжЗзИи' +
+		'АаБбВвГгДд ЕеЕеЖжЗзИи' +
 				'ЙйКкЛлМмНн ОоПпРрСсТт' +
 				'УуФфХхЦцЧч ШшЩщЪъЫыЬь' +
 				'ЭэЮюЯя'
@@ -153,19 +150,36 @@ class SmppServiceTests
 	@Test
 	void testSend()
 	{
-		smppService.connectAndBind(
+		List ids
+
+		/*smppService.connectAndBind(
 				SmppConfig.HOST,
 				SmppConfig.PORT,
 				SmppConfig.SYSTEM_ID,
 				SmppConfig.PASSWORD,
 				SmppConfig.SYSTEM_TYPE
-		)
+		)*/
 
-		/*smppService.send(
+		/*ids = smppService.send(
 				SmppConfig.FROM,
 				SmppConfig.TO_PHONE,
 				unicode70Symbols
+		)
+
+		assertNotNull(ids)
+		assertEquals(1, ids.size())
+		println(ids.get(0))*/
+
+		/*ids = smppService.send(
+				SmppConfig.FROM,
+				SmppConfig.TO_PHONE,
+				unicode140Symbols
 		)*/
+
+		/*assertNotNull(ids)
+		assertEquals(2, ids.size())
+		assertFalse(ids.get(0) == ids.get(1))
+		println(ids)*/
 
 		/*smppService.send(
 				SmppConfig.FROM,
@@ -173,13 +187,13 @@ class SmppServiceTests
 				latin160Symbols
 		)*/
 
-		smppService.send(
+		/*smppService.send(
 				SmppConfig.FROM,
 				SmppConfig.TO_PHONE,
 				extendedLatin140
-		)
+		)*/
 
-		smppService.unbindAndClose()
+//		smppService.unbindAndClose()
 	}
 
 }

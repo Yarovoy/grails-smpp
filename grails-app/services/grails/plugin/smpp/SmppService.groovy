@@ -193,7 +193,47 @@ class SmppService implements MessageReceiverListener
 
 		if (partsNum > 1)
 		{
+			final Random random = new Random()
+			final short msgRefNum = (short) Math.abs(random.nextInt())
+
+			final int segmentsNum = parts.size()
+
+			OptionalParameter sarMsgRefNum = OptionalParameters.newSarMsgRefNum(msgRefNum)
+			OptionalParameter sarTotalSegments = OptionalParameters.newSarTotalSegments(segmentsNum)
+
+			log.info("Sending multipart message. The referense number is $msgRefNum and total number of segments is $segmentsNum.")
+
 			parts.eachWithIndex {String part, index ->
+
+				int seqNum = index + 1;
+				OptionalParameter sarSegmentSeqNum = OptionalParameters.newSarSegmentSeqnum(seqNum)
+
+				log.info "Sending message part $seqNum of $segmentsNum"
+
+				partIds << _smppSession.submitShortMessage(
+						serviceType,
+						TypeOfNumber.UNKNOWN,
+						NumberingPlanIndicator.UNKNOWN,
+						from,
+						TypeOfNumber.UNKNOWN,
+						NumberingPlanIndicator.UNKNOWN,
+						phone,
+						new ESMClass(),
+						(byte) 0, (byte) 1,
+						timeFormatter.format(new Date()),
+						null,
+						new RegisteredDelivery(SMSCDeliveryReceipt.DEFAULT),
+						(byte) 0,
+						dataCoding,
+						(byte) 0,
+						part.getBytes(charset),
+						sarMsgRefNum,
+						sarSegmentSeqNum,
+						sarTotalSegments
+				)
+
+				log.info "Message part sended"
+
 			}
 		}
 		else
