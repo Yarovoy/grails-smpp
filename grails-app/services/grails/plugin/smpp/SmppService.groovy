@@ -24,7 +24,7 @@ class SmppService implements MessageReceiverListener
 	static final Pattern LATIN_EXTENDED_PATTERN = ~/.*[\u007f-\u00ff].*/
 	static final Pattern UNICODE_PATTERN = ~/.*[\u0100-\ufffe].*/
 
-	static final String serviceType = 'CMT'
+	static final String SERVICE_TYPE = 'CMT'
 
 	static final int LATIN_BASIC_MESSAGE_LENGTH = 160
 	static final int LATIN_EXTENDED_MESSAGE_LENGTH = 140
@@ -211,7 +211,7 @@ class SmppService implements MessageReceiverListener
 				log.info "Sending message part $seqNum of $segmentsNum"
 
 				partIds << _smppSession.submitShortMessage(
-						serviceType,
+						SERVICE_TYPE,
 						TypeOfNumber.UNKNOWN,
 						NumberingPlanIndicator.UNKNOWN,
 						from,
@@ -239,7 +239,7 @@ class SmppService implements MessageReceiverListener
 		else
 		{
 			partIds << _smppSession.submitShortMessage(
-					serviceType,
+					SERVICE_TYPE,
 					TypeOfNumber.UNKNOWN,
 					NumberingPlanIndicator.UNKNOWN,
 					from,

@@ -152,13 +152,13 @@ class SmppServiceTests
 	{
 		List ids
 
-		/*smppService.connectAndBind(
+		smppService.connectAndBind(
 				SmppConfig.HOST,
 				SmppConfig.PORT,
 				SmppConfig.SYSTEM_ID,
 				SmppConfig.PASSWORD,
 				SmppConfig.SYSTEM_TYPE
-		)*/
+		)
 
 		/*ids = smppService.send(
 				SmppConfig.FROM,
@@ -181,11 +181,11 @@ class SmppServiceTests
 		assertFalse(ids.get(0) == ids.get(1))
 		println(ids)*/
 
-		/*smppService.send(
+		smppService.send(
 				SmppConfig.FROM,
 				SmppConfig.TO_PHONE,
 				latin160Symbols
-		)*/
+		)
 
 		/*smppService.send(
 				SmppConfig.FROM,
@@ -193,7 +193,7 @@ class SmppServiceTests
 				extendedLatin140
 		)*/
 
-//		smppService.unbindAndClose()
+		smppService.unbindAndClose()
 	}
 
 }
