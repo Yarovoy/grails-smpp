@@ -5,6 +5,8 @@ import org.jsmpp.bean.Alphabet
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.jsmpp.bean.GeneralDataCoding
+import org.jsmpp.bean.MessageClass
 
 @TestFor(SmppService)
 class SmppServiceTests
@@ -170,22 +172,28 @@ class SmppServiceTests
 		assertEquals(1, ids.size())
 		println(ids.get(0))*/
 
-		/*ids = smppService.send(
+		ids = smppService.send(
 				SmppConfig.FROM,
 				SmppConfig.TO_PHONE,
 				unicode140Symbols
-		)*/
+		)
 
 		/*assertNotNull(ids)
 		assertEquals(2, ids.size())
 		assertFalse(ids.get(0) == ids.get(1))
 		println(ids)*/
 
-		smppService.send(
+		/*smppService.send(
 				SmppConfig.FROM,
 				SmppConfig.TO_PHONE,
 				latin160Symbols
-		)
+		)*/
+
+		/*smppService.send(
+				SmppConfig.FROM,
+				SmppConfig.TO_PHONE,
+				latin320Symbols
+		)*/
 
 		/*smppService.send(
 				SmppConfig.FROM,

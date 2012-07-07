@@ -156,9 +156,6 @@ class SmppService implements MessageReceiverListener
 					MessageClass.CLASS0,
 					Alphabet.ALPHA_DEFAULT
 			)
-
-			println(dataCoding.value())
-			println(new GeneralDataCoding().value())
 		}
 		else if (alphabet == Alphabet.ALPHA_8_BIT)
 		{
@@ -209,6 +206,8 @@ class SmppService implements MessageReceiverListener
 				OptionalParameter sarSegmentSeqNum = OptionalParameters.newSarSegmentSeqnum(seqNum)
 
 				log.info "Sending message part $seqNum of $segmentsNum"
+
+				println part.length()
 
 				partIds << _smppSession.submitShortMessage(
 						SERVICE_TYPE,
