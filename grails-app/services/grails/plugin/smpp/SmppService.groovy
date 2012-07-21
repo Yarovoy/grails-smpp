@@ -3,16 +3,15 @@ package grails.plugin.smpp
 import com.yarovoy.smpp.SmppException
 import org.jsmpp.InvalidResponseException
 import org.jsmpp.PDUException
+import org.jsmpp.bean.*
 import org.jsmpp.extra.NegativeResponseException
 import org.jsmpp.extra.ResponseTimeoutException
 import org.jsmpp.extra.SessionState
+import org.jsmpp.session.*
 import org.jsmpp.util.RelativeTimeFormatter
 import org.jsmpp.util.TimeFormatter
 
 import java.util.regex.Pattern
-
-import org.jsmpp.bean.*
-import org.jsmpp.session.*
 
 class SmppService implements MessageReceiverListener
 {
@@ -34,12 +33,17 @@ class SmppService implements MessageReceiverListener
 	// Private props
 	// ----------------------------------------------------------------------
 
-	SMPPSession _smppSession
-	String _sessionId
+	private SMPPSession _smppSession
+	private String _sessionId
 
 	// ----------------------------------------------------------------------
 	// Getters and setters
 	// ----------------------------------------------------------------------
+
+	String getSessionId()
+	{
+		_sessionId
+	}
 
 	boolean getConnected()
 	{

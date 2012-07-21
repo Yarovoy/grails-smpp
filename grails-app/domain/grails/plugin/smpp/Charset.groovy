@@ -28,7 +28,7 @@ public enum Charset
 		value
 	}
 
-	static Charset getByValue(String value)
+	static Charset stringToEnum(String value)
 	{
 		valuesToEnum.get(value)
 	}

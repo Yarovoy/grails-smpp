@@ -5,8 +5,6 @@ import org.jsmpp.bean.Alphabet
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.jsmpp.bean.GeneralDataCoding
-import org.jsmpp.bean.MessageClass
 
 @TestFor(SmppService)
 class SmppServiceTests
@@ -68,11 +66,11 @@ class SmppServiceTests
 	void testDetectAlphabet()
 	{
 		assertEquals(Alphabet.ALPHA_UCS2, smppService.detectAlphabet(unicode70Symbols))
-		assertEquals(Alphabet.ALPHA_UCS2, smppService.detectAlphabet("This is Latin and a little bit of Юnicode."))
+		assertEquals(Alphabet.ALPHA_UCS2, smppService.detectAlphabet("This is Latin and a little bit of Юnic0də."))
 		assertEquals(
 				Alphabet.ALPHA_8_BIT,
 				smppService.detectAlphabet(
-						"This is the Extended Latin only with some special symbols: À, Õ, ÿ."
+						"This is the Extended Latin only with some special characters: À, Õ, ÿ."
 				)
 		)
 		assertEquals(Alphabet.ALPHA_DEFAULT, smppService.detectAlphabet(latin160Symbols))
@@ -162,7 +160,7 @@ class SmppServiceTests
 				SmppConfig.SYSTEM_TYPE
 		)
 
-		/*ids = smppService.send(
+		ids = smppService.send(
 				SmppConfig.FROM,
 				SmppConfig.TO_PHONE,
 				unicode70Symbols
@@ -170,13 +168,13 @@ class SmppServiceTests
 
 		assertNotNull(ids)
 		assertEquals(1, ids.size())
-		println(ids.get(0))*/
+		println(ids.get(0))
 
-		ids = smppService.send(
+		/*ids = smppService.send(
 				SmppConfig.FROM,
 				SmppConfig.TO_PHONE,
 				unicode140Symbols
-		)
+		)*/
 
 		/*assertNotNull(ids)
 		assertEquals(2, ids.size())
