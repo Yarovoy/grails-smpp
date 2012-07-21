@@ -20,7 +20,7 @@ grails.project.dependency.resolution = {
 		runtime 'org.slf4j:slf4j-api:1.6.6'
 		runtime 'org.slf4j:slf4j-simple:1.6.6'
 
-		runtime 'com.googlecode.jsmpp:jsmpp:2.1.0'
+		compile 'com.googlecode.jsmpp:jsmpp:2.1.0'
 	}
 
 	plugins {
