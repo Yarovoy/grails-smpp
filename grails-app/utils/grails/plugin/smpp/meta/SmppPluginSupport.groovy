@@ -1,13 +1,14 @@
 package grails.plugin.smpp.meta
 
+import org.apache.log4j.Logger
+
 class SmppPluginSupport
 {
-	static def doWithWebDescriptor = { xml ->
-		// TODO Implement additions to web.xml (optional), this event occurs before
-	}
+	private static def log = Logger.getLogger(SmppPluginSupport.class)
+
+	static def doWithWebDescriptor = { xml -> }
 
 	static def doWithSpring = {
-		// TODO Implement runtime spring config (optional)
 	}
 
 	static def doWithDynamicMethods = { ctx ->
@@ -27,6 +28,8 @@ class SmppPluginSupport
 	static def onConfigChange = { event ->
 		// TODO Implement code that is executed when the project configuration changes.
 		// The event is the same as for 'onChange'.
+
+
 	}
 
 	static def onShutdown = { event ->

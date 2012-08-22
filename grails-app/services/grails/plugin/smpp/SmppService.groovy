@@ -1,6 +1,5 @@
 package grails.plugin.smpp
 
-import com.yarovoy.smpp.SmppException
 import org.jsmpp.InvalidResponseException
 import org.jsmpp.PDUException
 import org.jsmpp.bean.*
@@ -23,8 +22,6 @@ class SmppService implements MessageReceiverListener
 	static final Pattern LATIN_EXTENDED_PATTERN = ~/.*[\u007f-\u00ff].*/
 	static final Pattern UNICODE_PATTERN = ~/.*[\u0100-\ufffe].*/
 
-	static final String SERVICE_TYPE = 'CMT'
-
 	static final int LATIN_BASIC_MESSAGE_LENGTH = 160
 	static final int LATIN_EXTENDED_MESSAGE_LENGTH = 140
 	static final int UNICODE_MESSAGE_LENGTH = 70
@@ -35,6 +32,15 @@ class SmppService implements MessageReceiverListener
 
 	private SMPPSession _smppSession
 	private String _sessionId
+
+	// ----------------------------------------------------------------------
+	// Public props
+	// ----------------------------------------------------------------------
+
+	public Boolean latinEnabled = true
+	public Boolean extendedLatinEnabled = true
+
+	public String serviceType = 'CMT'
 
 	// ----------------------------------------------------------------------
 	// Getters and setters
@@ -79,7 +85,7 @@ class SmppService implements MessageReceiverListener
 	                      BindType bindType = BindType.BIND_TRX,
 	                      TypeOfNumber ton = TypeOfNumber.UNKNOWN,
 	                      NumberingPlanIndicator npi = NumberingPlanIndicator.UNKNOWN,
-	                      String addressRange = null) throws SmppException,
+	                      String addressRange = null) throws SmppServiceException,
 	                                                         UnknownHostException,
 	                                                         ConnectException,
 	                                                         IOException
@@ -214,7 +220,7 @@ class SmppService implements MessageReceiverListener
 				println part.length()
 
 				partIds << _smppSession.submitShortMessage(
-						SERVICE_TYPE,
+						serviceType,
 						TypeOfNumber.UNKNOWN,
 						NumberingPlanIndicator.UNKNOWN,
 						from,
@@ -242,7 +248,7 @@ class SmppService implements MessageReceiverListener
 		else
 		{
 			partIds << _smppSession.submitShortMessage(
-					SERVICE_TYPE,
+					serviceType,
 					TypeOfNumber.UNKNOWN,
 					NumberingPlanIndicator.UNKNOWN,
 					from,
