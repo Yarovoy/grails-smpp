@@ -1,5 +1,6 @@
 package grails.plugin.smpp
 
+import grails.plugin.smpp.meta.SmppConfigurationHolder
 import org.jsmpp.InvalidResponseException
 import org.jsmpp.PDUException
 import org.jsmpp.bean.*
@@ -37,6 +38,8 @@ class SmppService implements MessageReceiverListener
 	// Public props
 	// ----------------------------------------------------------------------
 
+	SmppConfigurationHolder smppConfigHolder
+
 	public Boolean latinEnabled = true
 	public Boolean extendedLatinEnabled = true
 
@@ -56,6 +59,11 @@ class SmppService implements MessageReceiverListener
 		_smppSession ? (_smppSession.sessionState == SessionState.BOUND_TX ||
 				_smppSession.sessionState == SessionState.BOUND_RX ||
 				_smppSession.sessionState == SessionState.BOUND_TRX) : false
+	}
+
+	String getHost()
+	{
+		smppConfigHolder.host
 	}
 
 	// ----------------------------------------------------------------------

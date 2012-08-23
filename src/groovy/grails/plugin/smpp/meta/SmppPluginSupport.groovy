@@ -10,8 +10,16 @@ import org.jsmpp.bean.TypeOfNumber
 class SmppPluginSupport
 {
 
+	// --------------------------------------------------------------------------------
+	// Private props
+	// --------------------------------------------------------------------------------
+
 	private static def log = Logger.getLogger(SmppPluginSupport.class)
 	private static def configReader = new ConfigurationReader(ConfigurationHolder.config)
+
+	// --------------------------------------------------------------------------------
+	// Private methods
+	// --------------------------------------------------------------------------------
 
 	private static BindType parseBindType(String bindType)
 	{
@@ -74,34 +82,56 @@ class SmppPluginSupport
 		}
 	}
 
+	// --------------------------------------------------------------------------------
+	// Event handlers
+	// --------------------------------------------------------------------------------
+
 	static def doWithWebDescriptor = { xml -> }
 	static def doWithApplicationContext = { applicationContext -> }
 
 	static def doWithSpring = {
+		log.debug('Configuring "smppConfigHolder" bean with Spring.')
+
 		smppConfigHolder(SmppConfigurationHolder) {
-			host = configReader.read('grails.plugin.smpp.host')
-			port = configReader.read('grails.plugin.smpp.port')
-			systemId = configReader.read('grails.plugin.smpp.systemId')
-			password = configReader.read('grails.plugin.smpp.password')
+			host = SmppPluginSupport.configReader.read('grails.plugin.smpp.host')
+			port = SmppPluginSupport.configReader.read('grails.plugin.smpp.port')
+			systemId = SmppPluginSupport.configReader.read('grails.plugin.smpp.systemId')
+			password = SmppPluginSupport.configReader.read('grails.plugin.smpp.password')
 
-			sourceAddr = configReader.read('grails.plugin.smpp.sourceAddr')
+			sourceAddr = SmppPluginSupport.configReader.read('grails.plugin.smpp.sourceAddr')
 
-			systemType = configReader.read('grails.plugin.smpp.systemType')
-			bindType = parseBindType(configReader.read('grails.plugin.smpp.bindType') as String)
-			ton = parseTon(configReader.read('grails.plugin.smpp.port') as String)
-			npi = parseNpi(configReader.read('grails.plugin.smpp.port') as String)
+			systemType = SmppPluginSupport.configReader.read('grails.plugin.smpp.systemType')
+			bindType = SmppPluginSupport.parseBindType(SmppPluginSupport.configReader.read('grails.plugin.smpp.bindType') as String)
+			ton = SmppPluginSupport.parseTon(SmppPluginSupport.configReader.read('grails.plugin.smpp.ton') as String)
+			npi = SmppPluginSupport.parseNpi(SmppPluginSupport.configReader.read('grails.plugin.smpp.npi') as String)
 		}
+	}
+
+	static def onConfigChange = { event ->
+		log.debug('Update SMPP session parameters after config reloading.')
+
+		configReader = new ConfigurationReader(ConfigurationHolder.config)
+
+		def smppConfigHolderBean = event.ctx.getBean('smppConfigHolder')
+
+		smppConfigHolderBean.host = SmppPluginSupport.configReader.read('grails.plugin.smpp.host')
+		smppConfigHolderBean.port = SmppPluginSupport.configReader.read('grails.plugin.smpp.port')
+		smppConfigHolderBean.systemId = SmppPluginSupport.configReader.read('grails.plugin.smpp.systemId')
+		smppConfigHolderBean.password = SmppPluginSupport.configReader.read('grails.plugin.smpp.password')
+
+		smppConfigHolderBean.sourceAddr = SmppPluginSupport.configReader.read('grails.plugin.smpp.sourceAddr')
+
+		smppConfigHolderBean.systemType = SmppPluginSupport.configReader.read('grails.plugin.smpp.systemType')
+		smppConfigHolderBean.bindType = SmppPluginSupport.parseBindType(SmppPluginSupport.configReader.read('grails.plugin.smpp.bindType') as String)
+		smppConfigHolderBean.ton = SmppPluginSupport.parseTon(SmppPluginSupport.configReader.read('grails.plugin.smpp.ton') as String)
+		smppConfigHolderBean.npi = SmppPluginSupport.parseNpi(SmppPluginSupport.configReader.read('grails.plugin.smpp.npi') as String)
+
 	}
 
 	static def onChange = { event ->
 		// TODO Implement code that is executed when any artefact that this plugin is
 		// watching is modified and reloaded. The event contains: event.source,
 		// event.application, event.manager, event.ctx, and event.plugin.
-	}
-
-	static def onConfigChange = { event ->
-		println(configReader.read('grails.plugin.smpp.host'))
-		println(configReader.read('grails.views.default.codec'))
 	}
 
 	static def doWithDynamicMethods = { ctx ->
