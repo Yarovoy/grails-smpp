@@ -10,8 +10,8 @@ public enum SmppCharset
 	private static Map<String, SmppCharset> valuesToEnum = [:]
 
 	static {
-		values().each {
-			valuesToEnum.put((it as SmppCharset).toString(), it)
+		values().each {SmppCharset value ->
+			valuesToEnum.put(value.toString(), value)
 		}
 	}
 
