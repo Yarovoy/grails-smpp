@@ -136,25 +136,41 @@ class SmppService implements MessageReceiverListener
 	                                                         ConnectException,
 	                                                         IOException
 	{
+		smppConfigHolder = new SmppConfigurationHolder(
+				host: host,
+				port: port,
+				systemId: systemId,
+				password: password,
+				systemType: systemType,
+				bindType: bindType,
+				ton: ton,
+				npi: npi,
+				addressRange: addressRange
+		)
+
 		BindParameter bindParameter = new BindParameter(
-				bindType,
-				systemId,
-				password,
-				systemType,
-				ton,
-				npi,
-				addressRange
+				smppConfigHolder.bindType,
+				smppConfigHolder.systemId,
+				smppConfigHolder.password,
+				smppConfigHolder.systemType,
+				smppConfigHolder.ton,
+				smppConfigHolder.npi,
+				smppConfigHolder.addressRange
 		)
 
 		// Connecting...
 		try
 		{
-			log.info "Connecting to $host:$port"
+			log.info "Connecting to $smppConfigHolder.host:${smppConfigHolder.port}…"
 
 			_smppSession = new SMPPSession(messageReceiverListener: this)
-			_sessionId = _smppSession.connectAndBind(host, port, bindParameter)
+			_sessionId = _smppSession.connectAndBind(
+					smppConfigHolder.host,
+					smppConfigHolder.port,
+					bindParameter
+			)
 
-			log.info "Connection established to $host:$port. Session ID is $_sessionId."
+			log.info "Connection established to $smppConfigHolder.host:$smppConfigHolder.port. Session ID is $_sessionId."
 
 			return _sessionId
 		}
@@ -162,7 +178,7 @@ class SmppService implements MessageReceiverListener
 		{
 			releaseSessionStuff()
 
-			log.error "Failed to connect and bind to $host:$port.", e
+			log.error "Failed to connect and bind to $smppConfigHolder.host:$smppConfigHolder.port.", e
 
 			throw e
 		}

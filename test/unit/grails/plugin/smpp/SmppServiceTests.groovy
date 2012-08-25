@@ -75,6 +75,25 @@ class SmppServiceTests
 		assertFalse smppService.connected
 	}
 
+	@Test
+	void connectAndBindWithParams()
+	{
+		String sessionId = smppService.connectAndBind(
+				SmppConfigValues.HOST,
+				SmppConfigValues.PORT,
+				SmppConfigValues.SYSTEM_ID,
+				SmppConfigValues.PASSWORD,
+				SmppConfigValues.SYSTEM_TYPE
+		)
+
+		assertTrue smppService.connected
+		assertNotNull sessionId
+
+		smppService.unbindAndClose()
+
+		assertFalse smppService.connected
+	}
+
 	/*@Test
 	void testDetectAlphabet()
 	{
