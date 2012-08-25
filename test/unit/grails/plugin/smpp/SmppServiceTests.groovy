@@ -1,10 +1,9 @@
 package grails.plugin.smpp
 
+import grails.plugin.smpp.meta.SmppConfigurationHolder
 import grails.test.mixin.TestFor
-import org.jsmpp.bean.Alphabet
 import org.junit.After
 import org.junit.Before
-import org.junit.Test
 
 @TestFor(SmppService)
 class SmppServiceTests
@@ -30,16 +29,35 @@ class SmppServiceTests
 	String extendedLatin280 = extendedLatin140 + extendedLatin140
 
 	SmppService smppService
+	SmppConfigurationHolder smppConfigHolder
 
 	@Before
 	void setUp()
 	{
-		smppService = new SmppService()
+		smppConfigHolder = new SmppConfigurationHolder(
+				host: SmppConfigValues.HOST,
+				port: SmppConfigValues.PORT,
+
+				systemId: SmppConfigValues.SYSTEM_ID,
+				password: SmppConfigValues.PASSWORD,
+				systemType: SmppConfigValues.SYSTEM_TYPE,
+
+				bindType: SmppConfigValues.BIND_TYPE,
+				ton: SmppConfigValues.TON,
+				npi: SmppConfigValues.NPI,
+
+				sourceAddr: SmppConfigValues.FROM
+		)
+
+		smppService = new SmppService(
+				smppConfigHolder: smppConfigHolder
+		)
 	}
 
 	@After
 	void tearDown()
 	{
+		smppConfigHolder = null
 		smppService = null
 	}
 
@@ -47,11 +65,11 @@ class SmppServiceTests
 	void testConnectAndBind()
 	{
 		String sessionId = smppService.connectAndBind(
-				SmppConfig.HOST,
-				SmppConfig.PORT,
-				SmppConfig.SYSTEM_ID,
-				SmppConfig.PASSWORD,
-				SmppConfig.SYSTEM_TYPE
+				SmppConfigValues.HOST,
+				SmppConfigValues.PORT,
+				SmppConfigValues.SYSTEM_ID,
+				SmppConfigValues.PASSWORD,
+				SmppConfigValues.SYSTEM_TYPE
 		)
 
 		assertTrue smppService.connected
@@ -62,7 +80,7 @@ class SmppServiceTests
 		assertFalse smppService.connected
 	}*/
 
-	@Test
+	/*@Test
 	void testDetectAlphabet()
 	{
 		assertEquals(Alphabet.ALPHA_UCS2, smppService.detectAlphabet(unicode70Symbols))
@@ -74,9 +92,9 @@ class SmppServiceTests
 				)
 		)
 		assertEquals(Alphabet.ALPHA_DEFAULT, smppService.detectAlphabet(latin160Symbols))
-	}
+	}*/
 
-	@Test
+	/*@Test
 	void testSplitToChunks()
 	{
 //		println unicode70Symbols.size()
@@ -145,24 +163,24 @@ class SmppServiceTests
 						)
 				).size()
 		)
-	}
+	}*/
 
-	@Test
+	/*@Test
 	void testSend()
 	{
 		List ids
 
 		smppService.connectAndBind(
-				SmppConfig.HOST,
-				SmppConfig.PORT,
-				SmppConfig.SYSTEM_ID,
-				SmppConfig.PASSWORD,
-				SmppConfig.SYSTEM_TYPE
+				SmppConfigValues.HOST,
+				SmppConfigValues.PORT,
+				SmppConfigValues.SYSTEM_ID,
+				SmppConfigValues.PASSWORD,
+				SmppConfigValues.SYSTEM_TYPE
 		)
 
 		ids = smppService.send(
-				SmppConfig.FROM,
-				SmppConfig.TO_PHONE,
+				SmppConfigValues.FROM,
+				SmppConfigValues.TO_PHONE,
 				unicode70Symbols
 		)
 
@@ -170,36 +188,37 @@ class SmppServiceTests
 		assertEquals(1, ids.size())
 		println(ids.get(0))
 
-		/*ids = smppService.send(
-				SmppConfig.FROM,
-				SmppConfig.TO_PHONE,
+		*//*ids = smppService.send(
+				SmppConfigValues.FROM,
+				SmppConfigValues.TO_PHONE,
 				unicode140Symbols
-		)*/
+		)*//*
 
-		/*assertNotNull(ids)
+		*//*assertNotNull(ids)
 		assertEquals(2, ids.size())
 		assertFalse(ids.get(0) == ids.get(1))
-		println(ids)*/
+		println(ids)*//*
 
-		/*smppService.send(
-				SmppConfig.FROM,
-				SmppConfig.TO_PHONE,
+		*//*smppService.send(
+				SmppConfigValues.FROM,
+				SmppConfigValues.TO_PHONE,
 				latin160Symbols
-		)*/
+		)*//*
 
-		/*smppService.send(
-				SmppConfig.FROM,
-				SmppConfig.TO_PHONE,
+		*//*smppService.send(
+				SmppConfigValues.FROM,
+				SmppConfigValues.TO_PHONE,
 				latin320Symbols
-		)*/
+		)*//*
 
-		/*smppService.send(
-				SmppConfig.FROM,
-				SmppConfig.TO_PHONE,
+		*//*smppService.send(
+				SmppConfigValues.FROM,
+				SmppConfigValues.TO_PHONE,
 				extendedLatin140
-		)*/
+		)*//*
 
 		smppService.unbindAndClose()
-	}
+	}*/
+
 
 }

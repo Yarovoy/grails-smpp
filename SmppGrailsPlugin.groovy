@@ -28,9 +28,9 @@ class SmppGrailsPlugin
 	def scm = [url: 'https://github.com/Yarovoy/grails-smpp']
 
 	def doWithWebDescriptor = SmppPluginSupport.doWithWebDescriptor
+	def doWithApplicationContext = SmppPluginSupport.doWithApplicationContext
 	def doWithSpring = SmppPluginSupport.doWithSpring
 	def doWithDynamicMethods = SmppPluginSupport.doWithDynamicMethods
-	def doWithApplicationContext = SmppPluginSupport.doWithApplicationContext
 	def onChange = SmppPluginSupport.onChange
 	def onConfigChange = SmppPluginSupport.onConfigChange
 	def onShutdown = SmppPluginSupport.onShutdown
