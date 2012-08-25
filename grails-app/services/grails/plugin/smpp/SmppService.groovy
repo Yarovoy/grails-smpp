@@ -85,6 +85,44 @@ class SmppService implements MessageReceiverListener
 	// Public methods
 	// ----------------------------------------------------------------------
 
+	String connectAndBind()
+	{
+		BindParameter bindParameter = new BindParameter(
+				smppConfigHolder.bindType,
+				smppConfigHolder.systemId,
+				smppConfigHolder.password,
+				smppConfigHolder.systemType,
+				smppConfigHolder.ton,
+				smppConfigHolder.npi,
+				smppConfigHolder.addressRange
+		)
+
+		// Connecting...
+		try
+		{
+			log.info "Connecting to $smppConfigHolder.host:${smppConfigHolder.port}…"
+
+			_smppSession = new SMPPSession(messageReceiverListener: this)
+			_sessionId = _smppSession.connectAndBind(
+					smppConfigHolder.host,
+					smppConfigHolder.port,
+					bindParameter
+			)
+
+			log.info "Connection established to $smppConfigHolder.host:$smppConfigHolder.port. Session ID is $_sessionId."
+
+			return _sessionId
+		}
+		catch (Exception e)
+		{
+			releaseSessionStuff()
+
+			log.error "Failed to connect and bind to $smppConfigHolder.host:$smppConfigHolder.port.", e
+
+			throw e
+		}
+	}
+
 	String connectAndBind(String host,
 	                      int port,
 	                      String systemId,

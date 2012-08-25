@@ -4,6 +4,7 @@ import grails.plugin.smpp.meta.SmppConfigurationHolder
 import grails.test.mixin.TestFor
 import org.junit.After
 import org.junit.Before
+import org.junit.Test
 
 @TestFor(SmppService)
 class SmppServiceTests
@@ -61,16 +62,10 @@ class SmppServiceTests
 		smppService = null
 	}
 
-	/*@Test
+	@Test
 	void testConnectAndBind()
 	{
-		String sessionId = smppService.connectAndBind(
-				SmppConfigValues.HOST,
-				SmppConfigValues.PORT,
-				SmppConfigValues.SYSTEM_ID,
-				SmppConfigValues.PASSWORD,
-				SmppConfigValues.SYSTEM_TYPE
-		)
+		String sessionId = smppService.connectAndBind()
 
 		assertTrue smppService.connected
 		assertNotNull sessionId
@@ -78,7 +73,7 @@ class SmppServiceTests
 		smppService.unbindAndClose()
 
 		assertFalse smppService.connected
-	}*/
+	}
 
 	/*@Test
 	void testDetectAlphabet()

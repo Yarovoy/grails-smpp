@@ -16,6 +16,7 @@ class SmppConfigurationHolder
 	BindType bindType
 	TypeOfNumber ton
 	NumberingPlanIndicator npi
+	String addressRange
 
 	String sourceAddr
 
