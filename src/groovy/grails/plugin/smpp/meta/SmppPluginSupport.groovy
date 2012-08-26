@@ -25,11 +25,12 @@ class SmppPluginSupport
 	{
 		switch (bindType)
 		{
-			case 'rx':
+			case 'receiver':
 				return BindType.BIND_RX
-			case 'tx':
+			case 'transmitter':
 				return BindType.BIND_TX
 			default:
+				// For 'transceiver' and other values.
 				BindType.BIND_TRX
 		}
 	}
@@ -51,6 +52,7 @@ class SmppPluginSupport
 			case 'subscriber':
 				return TypeOfNumber.SUBSCRIBER_NUMBER
 			default:
+				// For 'unknown' and other values.
 				return TypeOfNumber.UNKNOWN
 		}
 	}
@@ -78,6 +80,7 @@ class SmppPluginSupport
 			case 'wap':
 				return NPI.WAP
 			default:
+				// For 'unknown' and other values.
 				return NPI.UNKNOWN
 		}
 	}
@@ -104,6 +107,7 @@ class SmppPluginSupport
 			bindType = SmppPluginSupport.parseBindType(SmppPluginSupport.configReader.read('grails.plugin.smpp.bindType') as String)
 			ton = SmppPluginSupport.parseTon(SmppPluginSupport.configReader.read('grails.plugin.smpp.ton') as String)
 			npi = SmppPluginSupport.parseNpi(SmppPluginSupport.configReader.read('grails.plugin.smpp.npi') as String)
+			addressRange = SmppPluginSupport.configReader.read('grails.plugin.smpp.addressRange')
 		}
 	}
 
@@ -125,7 +129,7 @@ class SmppPluginSupport
 		smppConfigHolderBean.bindType = SmppPluginSupport.parseBindType(SmppPluginSupport.configReader.read('grails.plugin.smpp.bindType') as String)
 		smppConfigHolderBean.ton = SmppPluginSupport.parseTon(SmppPluginSupport.configReader.read('grails.plugin.smpp.ton') as String)
 		smppConfigHolderBean.npi = SmppPluginSupport.parseNpi(SmppPluginSupport.configReader.read('grails.plugin.smpp.npi') as String)
-
+		smppConfigHolderBean.addressRange = SmppPluginSupport.configReader.read('grails.plugin.smpp.addressRange') as String
 	}
 
 	static def onChange = { event ->

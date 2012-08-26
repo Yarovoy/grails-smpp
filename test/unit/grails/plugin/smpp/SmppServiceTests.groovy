@@ -1,5 +1,6 @@
 package grails.plugin.smpp
 
+import grails.plugin.smpp.meta.SmppConfigValues
 import grails.plugin.smpp.meta.SmppConfigurationHolder
 import grails.test.mixin.TestFor
 import org.jsmpp.bean.Alphabet
