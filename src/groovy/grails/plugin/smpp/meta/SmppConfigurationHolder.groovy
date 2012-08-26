@@ -20,4 +20,15 @@ class SmppConfigurationHolder
 
 	String sourceAddr
 
+	@Override
+	String toString()
+	{
+		def filtered = ['class', 'metaClass']
+
+		properties
+				.sort {it.key}
+				.collect {it}
+				.findAll {!filtered.contains(it.key)}
+				.join('\n')
+	}
 }
