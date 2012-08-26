@@ -23,10 +23,18 @@ class SmppServiceTests
 				'KkLlMmNnOo PpQqRrSsTt ' +
 				'UuVvWwXxYy Zz '
 
-	String unicode70Symbols = cyrillicAlphabet + '1'
-	String unicode140Symbols = cyrillicAlphabet + cyrillicAlphabet + '12'
-	String latin160Symbols = latinAlphabet + latinAlphabet + '1234567890 1234567890 1234567890 1234567890 '
+	String latin160Symbols = latinAlphabet +
+			latinAlphabet +
+			'1234567890 1234567890 1234567890 1234567890 '
+
+	String latin161Symbols = latin160Symbols + '1'
+
 	String latin320Symbols = latin160Symbols + latin160Symbols
+
+	String unicode70Symbols = cyrillicAlphabet + '1'
+	String unicode71Symbols = unicode70Symbols + '2'
+	String unicode140Symbols = cyrillicAlphabet + cyrillicAlphabet + '12'
+
 	String extendedLatin140 = latinAlphabet + latinAlphabet +
 			' 1234567890 12345678 Àþÿ'
 	String extendedLatin280 = extendedLatin140 + extendedLatin140
@@ -108,6 +116,46 @@ class SmppServiceTests
 				)
 		)
 		assertEquals(Alphabet.ALPHA_DEFAULT, smppService.detectAlphabet(latin160Symbols))
+	}
+
+	@Test
+	void testSplitToChunksByLengths()
+	{
+		List<String> result = smppService.splitToChunks(latin160Symbols, 160, 154)
+
+		assertEquals(1, result.size())
+		assertEquals(160, result[0].length())
+
+		result = smppService.splitToChunks(latin161Symbols, 160, 154)
+
+		assertEquals(2, result.size())
+		assertEquals(154, result[0].length())
+		assertEquals(7, result[1].length())
+
+		result = smppService.splitToChunks(latin320Symbols, 160, 154)
+
+		assertEquals(3, result.size())
+		assertEquals(154, result[0].length())
+		assertEquals(154, result[1].length())
+		assertEquals(12, result[2].length())
+
+		result = smppService.splitToChunks(unicode70Symbols, 70, 67)
+
+		assertEquals(1, result.size())
+		assertEquals(70, result[0].length())
+
+		result = smppService.splitToChunks(unicode71Symbols, 70, 67)
+
+		assertEquals(2, result.size())
+		assertEquals(67, result[0].length())
+		assertEquals(4, result[1].length())
+
+		result = smppService.splitToChunks(unicode140Symbols, 70, 67)
+
+		assertEquals(3, result.size())
+		assertEquals(67, result[0].length())
+		assertEquals(67, result[1].length())
+		assertEquals(6, result[2].length())
 	}
 
 	/*@Test

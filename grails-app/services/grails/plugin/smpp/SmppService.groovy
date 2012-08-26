@@ -20,12 +20,15 @@ class SmppService implements MessageReceiverListener
 	// Constants
 	// ----------------------------------------------------------------------
 
-	static final Pattern LATIN_EXTENDED_PATTERN = ~/.*[\u007f-\u00ff].*/
-	static final Pattern UNICODE_PATTERN = ~/.*[\u0100-\ufffe].*/
+	private static final Pattern LATIN_EXTENDED_PATTERN = ~/.*[\u007f-\u00ff].*/
+	private static final Pattern UNICODE_PATTERN = ~/.*[\u0100-\ufffe].*/
 
-	static final int LATIN_BASIC_MESSAGE_LENGTH = 160
-	static final int LATIN_EXTENDED_MESSAGE_LENGTH = 140
-	static final int UNICODE_MESSAGE_LENGTH = 70
+	private static final int LATIN_BASIC_BITS_ON_SYMBOL = 7
+	private static final int LATIN_EXTENDED_BITS_ON_SYMBOL = 8
+	private static final int UNICODE_BITS_ON_SYMBOL = 16
+
+	private static final int BITS_AT_ALL = 1120
+	private static final int UDH_BITS = 6
 
 	// ----------------------------------------------------------------------
 	// Private props
@@ -39,9 +42,6 @@ class SmppService implements MessageReceiverListener
 	// ----------------------------------------------------------------------
 
 	SmppConfigurationHolder smppConfigHolder
-
-	public Boolean latinEnabled = true
-	public Boolean extendedLatinEnabled = true
 
 	public String serviceType = 'CMT'
 
@@ -186,6 +186,54 @@ class SmppService implements MessageReceiverListener
 		_smppSession.unbindAndClose()
 	}
 
+	Alphabet detectAlphabet(String text)
+	{
+		if (text == null)
+		{
+			throw new IllegalArgumentException('Analyzing text must be specified')
+		}
+
+		if (text.matches(UNICODE_PATTERN))
+		{
+			return Alphabet.ALPHA_UCS2
+		}
+		else if (text.matches(LATIN_EXTENDED_PATTERN))
+		{
+			return Alphabet.ALPHA_8_BIT
+		}
+
+		Alphabet.ALPHA_DEFAULT
+	}
+
+	List<String> splitToChunks(String text, int maxLength, int chunkLength)
+	{
+		if (text.length() <= maxLength)
+		{
+			return [text]
+		}
+
+		text.split("(?<=\\G.{$chunkLength})") as List<String>
+	}
+
+	List<String> splitToChunks(String text, Alphabet alphabet)
+	{
+		if (alphabet == Alphabet.ALPHA_DEFAULT)
+		{
+			if (text.length() > (BITS_AT_ALL / LATIN_BASIC_BITS_ON_SYMBOL))
+			{
+				return text.split("(?<=\\G.{${(BITS_AT_ALL - UDH_BITS) / LATIN_BASIC_BITS_ON_SYMBOL}})") as List<String>
+			}
+
+			return [text]
+		}
+		else if (alphabet == Alphabet.ALPHA_8_BIT)
+		{
+			return text.split("(?<=\\G.{$LATIN_EXTENDED_BITS_ON_SYMBOL})") as List<String>
+		}
+
+		text.split("(?<=\\G.{$UNICODE_BITS_ON_SYMBOL})") as List<String>
+	}
+
 	List<String> send(String from, String phone, String text) throws PDUException,
 	                                                                 ResponseTimeoutException,
 	                                                                 InvalidResponseException,
@@ -327,39 +375,6 @@ class SmppService implements MessageReceiverListener
 		}
 
 		partIds
-	}
-
-	Alphabet detectAlphabet(String text)
-	{
-		if (text == null)
-		{
-			throw new IllegalArgumentException('Analyzing text must be specified')
-		}
-
-		if (text.matches(UNICODE_PATTERN))
-		{
-			return Alphabet.ALPHA_UCS2
-		}
-		else if (text.matches(LATIN_EXTENDED_PATTERN))
-		{
-			return Alphabet.ALPHA_8_BIT
-		}
-
-		Alphabet.ALPHA_DEFAULT
-	}
-
-	List<String> splitToChunks(String text, Alphabet alphabet)
-	{
-		if (alphabet == Alphabet.ALPHA_DEFAULT)
-		{
-			return text.split("(?<=\\G.{$LATIN_BASIC_MESSAGE_LENGTH})") as List<String>
-		}
-		else if (alphabet == Alphabet.ALPHA_8_BIT)
-		{
-			return text.split("(?<=\\G.{$LATIN_EXTENDED_MESSAGE_LENGTH})") as List<String>
-		}
-
-		text.split("(?<=\\G.{$UNICODE_MESSAGE_LENGTH})") as List<String>
 	}
 
 	// ----------------------------------------------------------------------

@@ -20,6 +20,9 @@ class SmppConfigurationHolder
 
 	String sourceAddr
 
+	public Boolean basicLatinEnabled = true
+	public Boolean extendedLatinEnabled = true
+
 	@Override
 	String toString()
 	{
