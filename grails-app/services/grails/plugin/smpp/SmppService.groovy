@@ -63,11 +63,6 @@ class SmppService implements MessageReceiverListener
 				_smppSession.sessionState == SessionState.BOUND_TRX) : false
 	}
 
-	String getHost()
-	{
-		smppConfigHolder.host
-	}
-
 	// ----------------------------------------------------------------------
 	// Private methods
 	// ----------------------------------------------------------------------
