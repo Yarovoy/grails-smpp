@@ -2,6 +2,7 @@ package grails.plugin.smpp
 
 import grails.plugin.smpp.meta.SmppConfigurationHolder
 import grails.test.mixin.TestFor
+import org.jsmpp.bean.Alphabet
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -94,7 +95,7 @@ class SmppServiceTests
 		assertFalse smppService.connected
 	}
 
-	/*@Test
+	@Test
 	void testDetectAlphabet()
 	{
 		assertEquals(Alphabet.ALPHA_UCS2, smppService.detectAlphabet(unicode70Symbols))
@@ -106,7 +107,7 @@ class SmppServiceTests
 				)
 		)
 		assertEquals(Alphabet.ALPHA_DEFAULT, smppService.detectAlphabet(latin160Symbols))
-	}*/
+	}
 
 	/*@Test
 	void testSplitToChunks()
