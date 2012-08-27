@@ -241,6 +241,14 @@ class SmppService implements MessageReceiverListener
 		)
 	}
 
+	List<String> splitToChunks(String text)
+	{
+		return splitToChunks(
+				text,
+				detectAlphabet(text)
+		)
+	}
+
 	List<String> send(String from, String phone, String text) throws PDUException,
 	                                                                 ResponseTimeoutException,
 	                                                                 InvalidResponseException,
