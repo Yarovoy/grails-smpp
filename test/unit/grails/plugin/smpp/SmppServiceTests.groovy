@@ -5,8 +5,6 @@ import grails.plugin.smpp.meta.SmppConfigurationHolder
 import grails.test.mixin.TestFor
 import org.jsmpp.bean.Alphabet
 import org.junit.After
-import org.junit.Before
-import org.junit.Test
 
 @TestFor(SmppService)
 class SmppServiceTests
@@ -26,18 +24,17 @@ class SmppServiceTests
 	String latin160Symbols = latinAlphabet +
 			latinAlphabet +
 			'1234567890 1234567890 1234567890 1234567890 '
-
 	String latin161Symbols = latin160Symbols + '1'
-
 	String latin320Symbols = latin160Symbols + latin160Symbols
+
+	String extendedLatin140 = latinAlphabet + latinAlphabet +
+			' 1234567890 12345678 Àþÿ'
+	String extendedLatin280 = extendedLatin140 + extendedLatin140
 
 	String unicode70Symbols = cyrillicAlphabet + '1'
 	String unicode71Symbols = unicode70Symbols + '2'
 	String unicode140Symbols = cyrillicAlphabet + cyrillicAlphabet + '12'
 
-	String extendedLatin140 = latinAlphabet + latinAlphabet +
-			' 1234567890 12345678 Àþÿ'
-	String extendedLatin280 = extendedLatin140 + extendedLatin140
 
 	SmppService smppService
 	SmppConfigurationHolder smppConfigHolder
@@ -158,76 +155,71 @@ class SmppServiceTests
 		assertEquals(6, result[2].length())
 	}
 
-	/*@Test
+	@Test
 	void testSplitToChunks()
 	{
-//		println unicode70Symbols.size()
-//		println unicode140Symbols.size()
-//		println latin160Symbols.size()
-//		println latin320Symbols.size()
-//		println extendedLatin140.size()
-//		println extendedLatin280.size()
-
-		assertEquals(
-				1,
-				smppService.splitToChunks(
-						unicode70Symbols,
-						smppService.detectAlphabet(
-								unicode70Symbols
-						)
-				).size()
+		def chunks = smppService.splitToChunks(
+				latin160Symbols,
+				Alphabet.ALPHA_DEFAULT
 		)
 
-		assertEquals(
-				2,
-				smppService.splitToChunks(
-						unicode140Symbols,
-						smppService.detectAlphabet(
-								unicode140Symbols
-						)
-				).size()
+		assertEquals(1, chunks.size())
+		assertEquals(160, chunks[0].length())
+
+		chunks = smppService.splitToChunks(
+				latin161Symbols,
+				Alphabet.ALPHA_DEFAULT
 		)
 
-		assertEquals(
-				1,
-				smppService.splitToChunks(
-						latin160Symbols,
-						smppService.detectAlphabet(
-								latin160Symbols
-						)
-				).size()
+		assertEquals(2, chunks.size())
+		assertEquals(153, chunks[0].length())
+		assertEquals(8, chunks[1].length())
+
+		chunks = smppService.splitToChunks(
+				latin320Symbols,
+				Alphabet.ALPHA_DEFAULT
 		)
 
-		assertEquals(
-				2,
-				smppService.splitToChunks(
-						latin320Symbols,
-						smppService.detectAlphabet(
-								latin320Symbols
-						)
-				).size()
+		assertEquals(3, chunks.size())
+		assertEquals(153, chunks[0].length())
+		assertEquals(153, chunks[1].length())
+		assertEquals(14, chunks[2].length())
+
+		chunks = smppService.splitToChunks(
+				extendedLatin140,
+				Alphabet.ALPHA_8_BIT
 		)
 
-		assertEquals(
-				1,
-				smppService.splitToChunks(
-						extendedLatin140,
-						smppService.detectAlphabet(
-								extendedLatin140
-						)
-				).size()
+		assertEquals(1, chunks.size())
+		assertEquals(140, chunks[0].length())
+
+		chunks = smppService.splitToChunks(
+				unicode70Symbols,
+				Alphabet.ALPHA_UCS2
 		)
 
-		assertEquals(
-				2,
-				smppService.splitToChunks(
-						extendedLatin280,
-						smppService.detectAlphabet(
-								extendedLatin280
-						)
-				).size()
+		assertEquals(1, chunks.size())
+		assertEquals(70, chunks[0].length())
+
+		chunks = smppService.splitToChunks(
+				unicode71Symbols,
+				Alphabet.ALPHA_UCS2
 		)
-	}*/
+
+		assertEquals(2, chunks.size())
+		assertEquals(67, chunks[0].length())
+		assertEquals(4, chunks[1].length())
+
+		chunks = smppService.splitToChunks(
+				unicode140Symbols,
+				Alphabet.ALPHA_UCS2
+		)
+
+		assertEquals(3, chunks.size())
+		assertEquals(67, chunks[0].length())
+		assertEquals(67, chunks[1].length())
+		assertEquals(6, chunks[2].length())
+	}
 
 	/*@Test
 	void testSend()
@@ -286,3 +278,6 @@ class SmppServiceTests
 
 
 }
+
+import org.junit.Before
+import org.junit.Test

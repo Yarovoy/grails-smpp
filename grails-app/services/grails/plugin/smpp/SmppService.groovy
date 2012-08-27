@@ -23,12 +23,12 @@ class SmppService implements MessageReceiverListener
 	private static final Pattern LATIN_EXTENDED_PATTERN = ~/.*[\u007f-\u00ff].*/
 	private static final Pattern UNICODE_PATTERN = ~/.*[\u0100-\ufffe].*/
 
-	private static final int LATIN_BASIC_BITS_ON_SYMBOL = 7
-	private static final int LATIN_EXTENDED_BITS_ON_SYMBOL = 8
-	private static final int UNICODE_BITS_ON_SYMBOL = 16
+	private static final int LATIN_BASIC_BITS_ON_CHAR = 7
+	private static final int LATIN_EXTENDED_BITS_ON_CHAR = 8
+	private static final int UNICODE_BITS_ON_CHAR = 16
 
 	private static final int BITS_AT_ALL = 1120
-	private static final int UDH_BITS = 6
+	private static final int UDH_BITS = 48
 
 	// ----------------------------------------------------------------------
 	// Private props
@@ -217,21 +217,28 @@ class SmppService implements MessageReceiverListener
 
 	List<String> splitToChunks(String text, Alphabet alphabet)
 	{
-		if (alphabet == Alphabet.ALPHA_DEFAULT)
-		{
-			if (text.length() > (BITS_AT_ALL / LATIN_BASIC_BITS_ON_SYMBOL))
-			{
-				return text.split("(?<=\\G.{${(BITS_AT_ALL - UDH_BITS) / LATIN_BASIC_BITS_ON_SYMBOL}})") as List<String>
-			}
+		// See this post: http://www.ashishpaliwal.com/blog/2009/01/smpp-sending-long-sms-through-smpp/
+		// Or this: http://www.activxperts.com/xmstoolkit/sms/multipart/
 
-			return [text]
-		}
-		else if (alphabet == Alphabet.ALPHA_8_BIT)
+		int bitsOnChar
+
+		switch (alphabet)
 		{
-			return text.split("(?<=\\G.{$LATIN_EXTENDED_BITS_ON_SYMBOL})") as List<String>
+			case Alphabet.ALPHA_DEFAULT:
+				bitsOnChar = LATIN_BASIC_BITS_ON_CHAR
+				break
+			case (Alphabet.ALPHA_8_BIT):
+				bitsOnChar = LATIN_EXTENDED_BITS_ON_CHAR
+				break
+			default:
+				bitsOnChar = UNICODE_BITS_ON_CHAR
 		}
 
-		text.split("(?<=\\G.{$UNICODE_BITS_ON_SYMBOL})") as List<String>
+		return splitToChunks(
+				text,
+				Math.floor(BITS_AT_ALL / bitsOnChar).toInteger(),
+				Math.floor((BITS_AT_ALL - UDH_BITS) / bitsOnChar).toInteger()
+		)
 	}
 
 	List<String> send(String from, String phone, String text) throws PDUException,
