@@ -5,6 +5,7 @@ import grails.plugin.smpp.meta.SmppConfigurationHolder
 import grails.test.mixin.TestFor
 import org.jsmpp.bean.Alphabet
 import org.junit.After
+import org.junit.Before
 
 @TestFor(SmppService)
 class SmppServiceTests
@@ -194,6 +195,16 @@ class SmppServiceTests
 		assertEquals(140, chunks[0].length())
 
 		chunks = smppService.splitToChunks(
+				extendedLatin280,
+				Alphabet.ALPHA_8_BIT
+		)
+
+		assertEquals(3, chunks.size())
+		assertEquals(134, chunks[0].length())
+		assertEquals(134, chunks[1].length())
+		assertEquals(12, chunks[2].length())
+
+		chunks = smppService.splitToChunks(
 				unicode70Symbols,
 				Alphabet.ALPHA_UCS2
 		)
@@ -279,5 +290,4 @@ class SmppServiceTests
 
 }
 
-import org.junit.Before
 import org.junit.Test
