@@ -173,8 +173,8 @@ class SmppServiceTests
 		)
 
 		assertEquals(2, chunks.size())
-		assertEquals(153, chunks[0].length())
-		assertEquals(8, chunks[1].length())
+		assertEquals(154, chunks[0].length())
+		assertEquals(7, chunks[1].length())
 
 		chunks = smppService.splitToChunks(
 				latin320Symbols,
@@ -182,9 +182,9 @@ class SmppServiceTests
 		)
 
 		assertEquals(3, chunks.size())
-		assertEquals(153, chunks[0].length())
-		assertEquals(153, chunks[1].length())
-		assertEquals(14, chunks[2].length())
+		assertEquals(154, chunks[0].length())
+		assertEquals(154, chunks[1].length())
+		assertEquals(12, chunks[2].length())
 
 		chunks = smppService.splitToChunks(
 				extendedLatin140,
@@ -200,9 +200,9 @@ class SmppServiceTests
 		)
 
 		assertEquals(3, chunks.size())
-		assertEquals(134, chunks[0].length())
-		assertEquals(134, chunks[1].length())
-		assertEquals(12, chunks[2].length())
+		assertEquals(135, chunks[0].length())
+		assertEquals(135, chunks[1].length())
+		assertEquals(10, chunks[2].length())
 
 		chunks = smppService.splitToChunks(
 				unicode70Symbols,
@@ -243,15 +243,15 @@ class SmppServiceTests
 		chunks = smppService.splitToChunks(latin161Symbols)
 
 		assertEquals(2, chunks.size())
-		assertEquals(153, chunks[0].length())
-		assertEquals(8, chunks[1].length())
+		assertEquals(154, chunks[0].length())
+		assertEquals(7, chunks[1].length())
 
 		chunks = smppService.splitToChunks(latin320Symbols)
 
 		assertEquals(3, chunks.size())
-		assertEquals(153, chunks[0].length())
-		assertEquals(153, chunks[1].length())
-		assertEquals(14, chunks[2].length())
+		assertEquals(154, chunks[0].length())
+		assertEquals(154, chunks[1].length())
+		assertEquals(12, chunks[2].length())
 
 		chunks = smppService.splitToChunks(extendedLatin140)
 
@@ -261,9 +261,9 @@ class SmppServiceTests
 		chunks = smppService.splitToChunks(extendedLatin280)
 
 		assertEquals(3, chunks.size())
-		assertEquals(134, chunks[0].length())
-		assertEquals(134, chunks[1].length())
-		assertEquals(12, chunks[2].length())
+		assertEquals(135, chunks[0].length())
+		assertEquals(135, chunks[1].length())
+		assertEquals(10, chunks[2].length())
 
 		chunks = smppService.splitToChunks(unicode70Symbols)
 

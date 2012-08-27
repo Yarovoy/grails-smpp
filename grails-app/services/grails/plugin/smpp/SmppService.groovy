@@ -28,7 +28,7 @@ class SmppService implements MessageReceiverListener
 	private static final int UNICODE_BITS_ON_CHAR = 16
 
 	private static final int BITS_AT_ALL = 1120
-	private static final int UDH_BITS = 48
+	private static final int UDH_BITS = 40
 
 	// ----------------------------------------------------------------------
 	// Private props
