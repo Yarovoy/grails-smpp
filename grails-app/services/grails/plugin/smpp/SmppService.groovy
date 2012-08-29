@@ -28,7 +28,7 @@ class SmppService implements MessageReceiverListener
 	private static final int UNICODE_BITS_ON_CHAR = 16
 
 	private static final int BITS_AT_ALL = 1120
-	private static final int UDH_BITS = 40
+	private static final int UDH_BITS = 48
 
 	// ----------------------------------------------------------------------
 	// Private props
@@ -205,7 +205,7 @@ class SmppService implements MessageReceiverListener
 		Alphabet.ALPHA_DEFAULT
 	}
 
-	List<String> splitToChunks(String text, int maxLength, int chunkLength)
+	List<String> splitToSegments(String text, int maxLength, int chunkLength)
 	{
 		if (text.length() <= maxLength)
 		{
@@ -215,7 +215,7 @@ class SmppService implements MessageReceiverListener
 		text.split("(?<=\\G.{$chunkLength})") as List<String>
 	}
 
-	List<String> splitToChunks(String text, Alphabet alphabet)
+	List<String> splitToSegments(String text, Alphabet alphabet)
 	{
 		// See this post: http://www.ashishpaliwal.com/blog/2009/01/smpp-sending-long-sms-through-smpp/
 		// Or this: http://www.activxperts.com/xmstoolkit/sms/multipart/
@@ -234,19 +234,25 @@ class SmppService implements MessageReceiverListener
 				bitsOnChar = UNICODE_BITS_ON_CHAR
 		}
 
-		return splitToChunks(
+		return splitToSegments(
 				text,
 				Math.floor(BITS_AT_ALL / bitsOnChar).toInteger(),
 				Math.floor((BITS_AT_ALL - UDH_BITS) / bitsOnChar).toInteger()
 		)
 	}
 
-	List<String> splitToChunks(String text)
+	List<String> splitToSegments(String text)
 	{
-		return splitToChunks(
+		return splitToSegments(
 				text,
 				detectAlphabet(text)
 		)
+	}
+
+	String submitSegment(String text, int currentNumber, int totalNumber)
+	{
+
+		''
 	}
 
 	List<String> send(String from, String phone, String text) throws PDUException,
@@ -313,7 +319,7 @@ class SmppService implements MessageReceiverListener
 		}
 
 		// Variables related to the message.
-		final List<String> parts = splitToChunks(
+		final List<String> parts = splitToSegments(
 				text,
 				alphabet
 		)
