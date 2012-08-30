@@ -308,7 +308,7 @@ class SmppServiceTests
 				SmppConfigValues.SYSTEM_TYPE
 		)
 
-		ids = smppService.send(
+		ids = smppService.submitMessage(
 				SmppConfigValues.FROM,
 				SmppConfigValues.TO_PHONE,
 				unicode70Symbols
@@ -318,7 +318,7 @@ class SmppServiceTests
 		assertEquals(1, ids.size())
 		println(ids.get(0))
 
-		*//*ids = smppService.send(
+		*//*ids = smppService.submitMessage(
 				SmppConfigValues.FROM,
 				SmppConfigValues.TO_PHONE,
 				unicode140Symbols
@@ -329,19 +329,19 @@ class SmppServiceTests
 		assertFalse(ids.get(0) == ids.get(1))
 		println(ids)*//*
 
-		*//*smppService.send(
+		*//*smppService.submitMessage(
 				SmppConfigValues.FROM,
 				SmppConfigValues.TO_PHONE,
 				latin160Symbols
 		)*//*
 
-		*//*smppService.send(
+		*//*smppService.submitMessage(
 				SmppConfigValues.FROM,
 				SmppConfigValues.TO_PHONE,
 				latin320Symbols
 		)*//*
 
-		*//*smppService.send(
+		*//*smppService.submitMessage(
 				SmppConfigValues.FROM,
 				SmppConfigValues.TO_PHONE,
 				extendedLatin140

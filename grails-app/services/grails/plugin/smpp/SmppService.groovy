@@ -255,7 +255,7 @@ class SmppService implements MessageReceiverListener
 		''
 	}
 
-	List<String> send(String from, String phone, String text) throws PDUException,
+	List<String> submitMessage(String from, String phone, String text) throws PDUException,
 	                                                                 ResponseTimeoutException,
 	                                                                 InvalidResponseException,
 	                                                                 NegativeResponseException,
