@@ -217,9 +217,6 @@ class SmppService implements MessageReceiverListener
 
 	List<String> splitToSegments(String text, Alphabet alphabet)
 	{
-		// See this post: http://www.ashishpaliwal.com/blog/2009/01/smpp-sending-long-sms-through-smpp/
-		// Or this: http://www.activxperts.com/xmstoolkit/sms/multipart/
-
 		int bitsOnChar
 
 		switch (alphabet)
