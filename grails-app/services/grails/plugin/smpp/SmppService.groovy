@@ -35,7 +35,6 @@ class SmppService implements MessageReceiverListener
 	// ----------------------------------------------------------------------
 
 	private SMPPSession _smppSession
-	private String _sessionId
 
 	// ----------------------------------------------------------------------
 	// Public props
@@ -53,7 +52,7 @@ class SmppService implements MessageReceiverListener
 
 	String getSessionId()
 	{
-		_sessionId
+		_smppSession?.sessionId
 	}
 
 	boolean getConnected()
@@ -74,8 +73,6 @@ class SmppService implements MessageReceiverListener
 			_smppSession.unbindAndClose()
 			_smppSession = null
 		}
-
-		_sessionId = null
 	}
 
 	// ----------------------------------------------------------------------
@@ -100,15 +97,15 @@ class SmppService implements MessageReceiverListener
 			log.info "Connecting to $smppConfigHolder.host:${smppConfigHolder.port}…"
 
 			_smppSession = new SMPPSession(messageReceiverListener: this)
-			_sessionId = _smppSession.connectAndBind(
+			_smppSession.connectAndBind(
 					smppConfigHolder.host,
 					smppConfigHolder.port,
 					bindParameter
 			)
 
-			log.info "Connection established to $smppConfigHolder.host:$smppConfigHolder.port. Session ID is $_sessionId."
+			log.info "Connection established to $smppConfigHolder.host:$smppConfigHolder.port. Session ID is $_smppSession.sessionId."
 
-			return _sessionId
+			return _smppSession.sessionId
 		}
 		catch (Exception e)
 		{
@@ -161,15 +158,15 @@ class SmppService implements MessageReceiverListener
 			log.info "Connecting to $smppConfigHolder.host:${smppConfigHolder.port}…"
 
 			_smppSession = new SMPPSession(messageReceiverListener: this)
-			_sessionId = _smppSession.connectAndBind(
+			_smppSession.connectAndBind(
 					smppConfigHolder.host,
 					smppConfigHolder.port,
 					bindParameter
 			)
 
-			log.info "Connection established to $smppConfigHolder.host:$smppConfigHolder.port. Session ID is $_sessionId."
+			log.info "Connection established to $smppConfigHolder.host:$smppConfigHolder.port. Session ID is $_smppSession.sessionId."
 
-			return _sessionId
+			return _smppSession.sessionId
 		}
 		catch (Exception e)
 		{
@@ -183,7 +180,7 @@ class SmppService implements MessageReceiverListener
 
 	void unbindAndClose()
 	{
-		_smppSession.unbindAndClose()
+		releaseSessionStuff()
 	}
 
 	Alphabet detectAlphabet(String text)

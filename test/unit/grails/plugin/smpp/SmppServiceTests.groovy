@@ -71,18 +71,19 @@ class SmppServiceTests
 		smppService = null
 	}
 
-	/*@Test
+	@Test
 	void testConnectAndBind()
 	{
-		String sessionId = smppService.connectAndBind()
+		smppService.connectAndBind()
 
 		assertTrue smppService.connected
-		assertNotNull sessionId
+		assertNotNull smppService.sessionId
 
 		smppService.unbindAndClose()
 
 		assertFalse smppService.connected
-	}*/
+		println smppService.sessionId
+	}
 
 	/*@Test
 	void connectAndBindWithParams()
@@ -285,15 +286,15 @@ class SmppServiceTests
 		assertEquals(6, chunks[2].length())
 	}
 
-	@Test
+	/*@Test
 	void testSubmitSegment()
 	{
 		String sessionId = smppService.connectAndBind()
 
-		//
+
 
 		smppService.unbindAndClose()
-	}
+	}*/
 
 	/*@Test
 	void testSend()
