@@ -82,7 +82,7 @@ class SmppServiceTests
 		smppService.unbindAndClose()
 
 		assertFalse smppService.connected
-		println smppService.sessionId
+		assertNull smppService.sessionId
 	}
 
 	/*@Test
