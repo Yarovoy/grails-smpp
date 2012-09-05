@@ -1,11 +1,7 @@
 package grails.plugin.smpp
 
 import grails.plugin.smpp.meta.SmppConfigurationHolder
-import org.jsmpp.InvalidResponseException
-import org.jsmpp.PDUException
 import org.jsmpp.bean.*
-import org.jsmpp.extra.NegativeResponseException
-import org.jsmpp.extra.ResponseTimeoutException
 import org.jsmpp.extra.SessionState
 import org.jsmpp.session.*
 import org.jsmpp.util.RelativeTimeFormatter
@@ -23,7 +19,7 @@ class SmppService implements MessageReceiverListener
 	private static final Pattern LATIN_EXTENDED_PATTERN = ~/.*[\u007f-\u00ff].*/
 	private static final Pattern UNICODE_PATTERN = ~/.*[\u0100-\ufffe].*/
 
-	private static final int LATIN_BASIC_BITS_ON_CHAR = 7
+	private static final int LATIN_BASIC_BITS_ON_CHAR = 7 // TODO: It's only for working from Easy SMS provider.
 	private static final int LATIN_EXTENDED_BITS_ON_CHAR = 8
 	private static final int UNICODE_BITS_ON_CHAR = 16
 
@@ -31,10 +27,14 @@ class SmppService implements MessageReceiverListener
 	private static final int UDH_BITS = 48
 
 	// ----------------------------------------------------------------------
-	// Private props
+	// Protected props
 	// ----------------------------------------------------------------------
 
-	private SMPPSession _smppSession
+	protected SMPPSession _smppSession
+
+	protected final TimeFormatter timeFormatter = new RelativeTimeFormatter()
+
+	protected final Random random = new Random()
 
 	// ----------------------------------------------------------------------
 	// Public props
@@ -243,13 +243,58 @@ class SmppService implements MessageReceiverListener
 		)
 	}
 
-	String submitSegment(String text, int currentNumber, int totalNumber)
+	String submitSegment(String from, String to, byte[] data, DataCoding dataCoding, int currentNumber, int totalNumber)
 	{
+		if (totalNumber > 1)
+		{
+			OptionalParameter sarMsgRefNum = OptionalParameters.newSarMsgRefNum((short) random.nextInt())
+			OptionalParameter sarSegmentSeqNum = OptionalParameters.newSarSegmentSeqnum(currentNumber)
+			OptionalParameter sarTotalSegments = OptionalParameters.newSarTotalSegments(totalNumber)
 
-		''
+			return _smppSession.submitShortMessage(
+					serviceType,
+					TypeOfNumber.UNKNOWN,
+					NumberingPlanIndicator.UNKNOWN,
+					from,
+					TypeOfNumber.UNKNOWN,
+					NumberingPlanIndicator.UNKNOWN,
+					to,
+					new ESMClass(),
+					(byte) 0, (byte) 1,
+					timeFormatter.format(new Date()),
+					null,
+					new RegisteredDelivery(SMSCDeliveryReceipt.DEFAULT),
+					(byte) 0,
+					dataCoding,
+					(byte) 0,
+					data,
+					sarMsgRefNum,
+					sarSegmentSeqNum,
+					sarTotalSegments
+			)
+		}
+
+		_smppSession.submitShortMessage(
+				serviceType,
+				TypeOfNumber.UNKNOWN,
+				NumberingPlanIndicator.UNKNOWN,
+				from,
+				TypeOfNumber.UNKNOWN,
+				NumberingPlanIndicator.UNKNOWN,
+				to,
+				new ESMClass(),
+				(byte) 0, (byte) 1,
+				timeFormatter.format(new Date()),
+				null,
+				new RegisteredDelivery(SMSCDeliveryReceipt.DEFAULT),
+				(byte) 0,
+				dataCoding,
+				(byte) 0,
+				data
+		)
 	}
 
-	List<String> submitMessage(String from, String phone, String text) throws PDUException,
+	/*List<String> submitMessage(String from, String phone, String text) throws PDUException,
 	                                                                 ResponseTimeoutException,
 	                                                                 InvalidResponseException,
 	                                                                 NegativeResponseException,
@@ -390,7 +435,7 @@ class SmppService implements MessageReceiverListener
 		}
 
 		partIds
-	}
+	}*/
 
 	// ----------------------------------------------------------------------
 	// Event handlers
@@ -410,4 +455,5 @@ class SmppService implements MessageReceiverListener
 	{
 		return null //To change body of implemented methods use File | Settings | File Templates.
 	}
+
 }

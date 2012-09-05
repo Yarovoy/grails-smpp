@@ -4,6 +4,8 @@ import grails.plugin.smpp.meta.SmppConfigValues
 import grails.plugin.smpp.meta.SmppConfigurationHolder
 import grails.test.mixin.TestFor
 import org.jsmpp.bean.Alphabet
+import org.jsmpp.bean.DataCoding
+import org.jsmpp.bean.GeneralDataCoding
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -13,24 +15,31 @@ class SmppServiceTests
 {
 
 	String cyrillicAlphabet =
-		'АаБбВвГгДд ЕеЕеЖжЗзИи' +
+		'АаБбВвГгДд ЕеЁёЖжЗзИи' +
 				'ЙйКкЛлМмНн ОоПпРрСсТт' +
 				'УуФфХхЦцЧч ШшЩщЪъЫыЬь' +
 				'ЭэЮюЯя'
 
 	String latinAlphabet =
-		'AaBbCcDdEe FfGgHhIiJj ' +
-				'KkLlMmNnOo PpQqRrSsTt ' +
-				'UuVvWwXxYy Zz '
+		'AaBbCcDdEe' +
+				'FfGgHhIiJj' +
+				'KkLlMmNnOo' +
+				'PpQqRrSsTt' +
+				'UuVvWwXxYy' +
+				'Zz12345678'
 
-	String latin160Symbols = latinAlphabet +
-			latinAlphabet +
-			'1234567890 1234567890 1234567890 1234567890 '
+	String latin160Symbols =
+		latinAlphabet +
+				latinAlphabet +
+				'1234567890' +
+				'1234567890' +
+				'1234567890' +
+				'1234567890'
 	String latin161Symbols = latin160Symbols + '1'
 	String latin320Symbols = latin160Symbols + latin160Symbols
 
 	String extendedLatin140 = latinAlphabet + latinAlphabet +
-			' 1234567890 12345678 Àþÿ'
+			'ÀþÿÀþÿÀþÿ 1234567890'
 	String extendedLatin280 = extendedLatin140 + extendedLatin140
 
 	String unicode70Symbols = cyrillicAlphabet + '1'
@@ -71,7 +80,7 @@ class SmppServiceTests
 		smppService = null
 	}
 
-	@Test
+	/*@Test
 	void testConnectAndBind()
 	{
 		smppService.connectAndBind()
@@ -83,7 +92,7 @@ class SmppServiceTests
 
 		assertFalse smppService.connected
 		assertNull smppService.sessionId
-	}
+	}*/
 
 	/*@Test
 	void connectAndBindWithParams()
@@ -286,15 +295,28 @@ class SmppServiceTests
 		assertEquals(6, chunks[2].length())
 	}
 
-	/*@Test
+	@Test
 	void testSubmitSegment()
 	{
-		String sessionId = smppService.connectAndBind()
+		smppService.connectAndBind()
 
+		byte[] data = unicode70Symbols.getBytes('UTF-16BE')
+		DataCoding dataCoding = new GeneralDataCoding(Alphabet.ALPHA_UCS2)
+		smppService.submitSegment(SmppConfigValues.FROM, SmppConfigValues.TO_PHONE, data, dataCoding, 1, 1)
 
+		/*smppService.splitToSegments(unicode71Symbols).eachWithIndex {String segment, int index ->
+			smppService.submitSegment(
+					SmppConfigValues.FROM,
+					SmppConfigValues.TO_PHONE,
+					segment.getBytes('UTF-16BE'),
+					dataCoding,
+					index + 1,
+					2
+			)
+		}*/
 
 		smppService.unbindAndClose()
-	}*/
+	}
 
 	/*@Test
 	void testSend()
