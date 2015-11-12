@@ -2,16 +2,16 @@ import grails.plugin.smpp.meta.SmppPluginSupport
 
 class SmppGrailsPlugin
 {
-	def version = '0.1'
+	def version = '0.1-SNAPSHOT'
 	def grailsVersion = '2.0 > *'
 	def dependsOn = [:]
 	def loadAfter = ['services', 'controllers']
 	def observe = ['services', 'controllers']
-	def watchedResources = ["grails-app/services/**/*Service.groovy", "grails-app/controllers/**/*Controller.groovy"]
+	def watchedResources = [
+			'grails-app/services/**/*Service.groovy',
+			'grails-app/controllers/**/*Controller.groovy'
+	]
 	def pluginExcludes = [
-			'grails-app/conf/Config.groovy',
-			'grails-app/conf/DataSource.groovy',
-			'grails-app/conf/UrlMappings.groovy',
 			'grails-app/controllers/**/*Controller.groovy',
 			'grails-app/services/**/*Service.groovy',
 			'grails-app/views/**/*.gsp'
@@ -28,9 +28,9 @@ class SmppGrailsPlugin
 	def scm = [url: 'https://github.com/Yarovoy/grails-smpp']
 
 	def doWithWebDescriptor = SmppPluginSupport.doWithWebDescriptor
+	def doWithApplicationContext = SmppPluginSupport.doWithApplicationContext
 	def doWithSpring = SmppPluginSupport.doWithSpring
 	def doWithDynamicMethods = SmppPluginSupport.doWithDynamicMethods
-	def doWithApplicationContext = SmppPluginSupport.doWithApplicationContext
 	def onChange = SmppPluginSupport.onChange
 	def onConfigChange = SmppPluginSupport.onConfigChange
 	def onShutdown = SmppPluginSupport.onShutdown

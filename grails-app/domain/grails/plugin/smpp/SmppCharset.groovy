@@ -1,23 +1,23 @@
 package grails.plugin.smpp
 
-public enum Charset
+public enum SmppCharset
 {
 
 	US_ASCII('US-ASCII'),
 	ISO_8859_1('ISO-8859-1'),
 	UTF_16BE('UTF-16BE')
 
-	private static Map<String, Charset> valuesToEnum = [:]
+	private static Map<String, SmppCharset> valuesToEnum = [:]
 
 	static {
-		values().each {
-			valuesToEnum.put(it.toString(), it)
+		values().each {SmppCharset value ->
+			valuesToEnum.put(value.toString(), value)
 		}
 	}
 
 	private String value
 
-	Charset(String value)
+	SmppCharset(String value)
 	{
 		this.value = value
 	}
@@ -28,7 +28,7 @@ public enum Charset
 		value
 	}
 
-	static Charset stringToEnum(String value)
+	static SmppCharset stringToEnum(String value)
 	{
 		valuesToEnum.get(value)
 	}

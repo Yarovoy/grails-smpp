@@ -1,11 +1,7 @@
 package grails.plugin.smpp
 
-import com.yarovoy.smpp.SmppException
-import org.jsmpp.InvalidResponseException
-import org.jsmpp.PDUException
+import grails.plugin.smpp.meta.SmppConfigurationHolder
 import org.jsmpp.bean.*
-import org.jsmpp.extra.NegativeResponseException
-import org.jsmpp.extra.ResponseTimeoutException
 import org.jsmpp.extra.SessionState
 import org.jsmpp.session.*
 import org.jsmpp.util.RelativeTimeFormatter
@@ -20,21 +16,35 @@ class SmppService implements MessageReceiverListener
 	// Constants
 	// ----------------------------------------------------------------------
 
-	static final Pattern LATIN_EXTENDED_PATTERN = ~/.*[\u007f-\u00ff].*/
-	static final Pattern UNICODE_PATTERN = ~/.*[\u0100-\ufffe].*/
+	private static final Pattern LATIN_EXTENDED_PATTERN = ~/.*[\u007f-\u00ff].*/
+	private static final Pattern UNICODE_PATTERN = ~/.*[\u0100-\ufffe].*/
 
-	static final String SERVICE_TYPE = 'CMT'
+	private static final int LATIN_BASIC_BITS_ON_CHAR = 7 // TODO: It's only for working from Easy SMS provider.
+	private static final int LATIN_EXTENDED_BITS_ON_CHAR = 8
+	private static final int UNICODE_BITS_ON_CHAR = 16
 
-	static final int LATIN_BASIC_MESSAGE_LENGTH = 160
-	static final int LATIN_EXTENDED_MESSAGE_LENGTH = 140
-	static final int UNICODE_MESSAGE_LENGTH = 70
+	private static final int BITS_AT_ALL = 1120
+	private static final int UDH_BITS = 48
 
 	// ----------------------------------------------------------------------
-	// Private props
+	// Protected props
 	// ----------------------------------------------------------------------
 
-	private SMPPSession _smppSession
-	private String _sessionId
+	protected SMPPSession _smppSession
+
+	protected final TimeFormatter timeFormatter = new RelativeTimeFormatter()
+
+	protected final Random random = new Random()
+
+	// ----------------------------------------------------------------------
+	// Public props
+	// ----------------------------------------------------------------------
+
+	SmppConfigurationHolder smppConfigHolder
+
+	public String serviceType = 'CMT'
+
+	static def transactional = false
 
 	// ----------------------------------------------------------------------
 	// Getters and setters
@@ -42,7 +52,7 @@ class SmppService implements MessageReceiverListener
 
 	String getSessionId()
 	{
-		_sessionId
+		_smppSession?.sessionId
 	}
 
 	boolean getConnected()
@@ -63,13 +73,49 @@ class SmppService implements MessageReceiverListener
 			_smppSession.unbindAndClose()
 			_smppSession = null
 		}
-
-		_sessionId = null
 	}
 
 	// ----------------------------------------------------------------------
 	// Public methods
 	// ----------------------------------------------------------------------
+
+	String connectAndBind()
+	{
+		BindParameter bindParameter = new BindParameter(
+				smppConfigHolder.bindType,
+				smppConfigHolder.systemId,
+				smppConfigHolder.password,
+				smppConfigHolder.systemType,
+				smppConfigHolder.ton,
+				smppConfigHolder.npi,
+				smppConfigHolder.addressRange
+		)
+
+		// Connecting...
+		try
+		{
+			log.info "Connecting to $smppConfigHolder.host:${smppConfigHolder.port}…"
+
+			_smppSession = new SMPPSession(messageReceiverListener: this)
+			_smppSession.connectAndBind(
+					smppConfigHolder.host,
+					smppConfigHolder.port,
+					bindParameter
+			)
+
+			log.info "Connection established to $smppConfigHolder.host:$smppConfigHolder.port. Session ID is $_smppSession.sessionId."
+
+			return _smppSession.sessionId
+		}
+		catch (Exception e)
+		{
+			releaseSessionStuff()
+
+			log.error "Failed to connect and bind to $smppConfigHolder.host:$smppConfigHolder.port.", e
+
+			throw e
+		}
+	}
 
 	String connectAndBind(String host,
 	                      int port,
@@ -79,38 +125,54 @@ class SmppService implements MessageReceiverListener
 	                      BindType bindType = BindType.BIND_TRX,
 	                      TypeOfNumber ton = TypeOfNumber.UNKNOWN,
 	                      NumberingPlanIndicator npi = NumberingPlanIndicator.UNKNOWN,
-	                      String addressRange = null) throws SmppException,
+	                      String addressRange = null) throws SmppServiceException,
 	                                                         UnknownHostException,
 	                                                         ConnectException,
 	                                                         IOException
 	{
+		smppConfigHolder = new SmppConfigurationHolder(
+				host: host,
+				port: port,
+				systemId: systemId,
+				password: password,
+				systemType: systemType,
+				bindType: bindType,
+				ton: ton,
+				npi: npi,
+				addressRange: addressRange
+		)
+
 		BindParameter bindParameter = new BindParameter(
-				bindType,
-				systemId,
-				password,
-				systemType,
-				ton,
-				npi,
-				addressRange
+				smppConfigHolder.bindType,
+				smppConfigHolder.systemId,
+				smppConfigHolder.password,
+				smppConfigHolder.systemType,
+				smppConfigHolder.ton,
+				smppConfigHolder.npi,
+				smppConfigHolder.addressRange
 		)
 
 		// Connecting...
 		try
 		{
-			log.info "Connecting to $host:$port"
+			log.info "Connecting to $smppConfigHolder.host:${smppConfigHolder.port}…"
 
 			_smppSession = new SMPPSession(messageReceiverListener: this)
-			_sessionId = _smppSession.connectAndBind(host, port, bindParameter)
+			_smppSession.connectAndBind(
+					smppConfigHolder.host,
+					smppConfigHolder.port,
+					bindParameter
+			)
 
-			log.info "Connection established to $host:$port. Session ID is $_sessionId."
+			log.info "Connection established to $smppConfigHolder.host:$smppConfigHolder.port. Session ID is $_smppSession.sessionId."
 
-			return _sessionId
+			return _smppSession.sessionId
 		}
 		catch (Exception e)
 		{
 			releaseSessionStuff()
 
-			log.error "Failed to connect and bind to $host:$port.", e
+			log.error "Failed to connect and bind to $smppConfigHolder.host:$smppConfigHolder.port.", e
 
 			throw e
 		}
@@ -118,10 +180,121 @@ class SmppService implements MessageReceiverListener
 
 	void unbindAndClose()
 	{
-		_smppSession.unbindAndClose()
+		releaseSessionStuff()
 	}
 
-	List<String> send(String from, String phone, String text) throws PDUException,
+	Alphabet detectAlphabet(String text)
+	{
+		if (text == null)
+		{
+			throw new IllegalArgumentException('Analyzing text must be specified')
+		}
+
+		if (text.matches(UNICODE_PATTERN))
+		{
+			return Alphabet.ALPHA_UCS2
+		}
+		else if (text.matches(LATIN_EXTENDED_PATTERN))
+		{
+			return Alphabet.ALPHA_8_BIT
+		}
+
+		Alphabet.ALPHA_DEFAULT
+	}
+
+	List<String> splitToSegments(String text, int maxLength, int chunkLength)
+	{
+		if (text.length() <= maxLength)
+		{
+			return [text]
+		}
+
+		text.split("(?<=\\G.{$chunkLength})") as List<String>
+	}
+
+	List<String> splitToSegments(String text, Alphabet alphabet)
+	{
+		int bitsOnChar
+
+		switch (alphabet)
+		{
+			case Alphabet.ALPHA_DEFAULT:
+				bitsOnChar = LATIN_BASIC_BITS_ON_CHAR
+				break
+			case (Alphabet.ALPHA_8_BIT):
+				bitsOnChar = LATIN_EXTENDED_BITS_ON_CHAR
+				break
+			default:
+				bitsOnChar = UNICODE_BITS_ON_CHAR
+		}
+
+		return splitToSegments(
+				text,
+				Math.floor(BITS_AT_ALL / bitsOnChar).toInteger(),
+				Math.floor((BITS_AT_ALL - UDH_BITS) / bitsOnChar).toInteger()
+		)
+	}
+
+	List<String> splitToSegments(String text)
+	{
+		return splitToSegments(
+				text,
+				detectAlphabet(text)
+		)
+	}
+
+	String submitSegment(String from, String to, byte[] data, DataCoding dataCoding, int currentNumber, int totalNumber)
+	{
+		if (totalNumber > 1)
+		{
+			OptionalParameter sarMsgRefNum = OptionalParameters.newSarMsgRefNum((short) random.nextInt())
+			OptionalParameter sarSegmentSeqNum = OptionalParameters.newSarSegmentSeqnum(currentNumber)
+			OptionalParameter sarTotalSegments = OptionalParameters.newSarTotalSegments(totalNumber)
+
+			return _smppSession.submitShortMessage(
+					serviceType,
+					TypeOfNumber.UNKNOWN,
+					NumberingPlanIndicator.UNKNOWN,
+					from,
+					TypeOfNumber.UNKNOWN,
+					NumberingPlanIndicator.UNKNOWN,
+					to,
+					new ESMClass(),
+					(byte) 0, (byte) 1,
+					timeFormatter.format(new Date()),
+					null,
+					new RegisteredDelivery(SMSCDeliveryReceipt.DEFAULT),
+					(byte) 0,
+					dataCoding,
+					(byte) 0,
+					data,
+					sarMsgRefNum,
+					sarSegmentSeqNum,
+					sarTotalSegments
+			)
+		}
+
+		_smppSession.submitShortMessage(
+				serviceType,
+				TypeOfNumber.UNKNOWN,
+				NumberingPlanIndicator.UNKNOWN,
+				from,
+				TypeOfNumber.UNKNOWN,
+				NumberingPlanIndicator.UNKNOWN,
+				to,
+				new ESMClass(),
+				(byte) 0, (byte) 1,
+				timeFormatter.format(new Date()),
+				null,
+				new RegisteredDelivery(SMSCDeliveryReceipt.DEFAULT),
+				(byte) 0,
+				dataCoding,
+				(byte) 0,
+				data
+		)
+	}
+
+	/*List<String> submitMessage(String from, String phone, String text) throws PDUException,
 	                                                                 ResponseTimeoutException,
 	                                                                 InvalidResponseException,
 	                                                                 NegativeResponseException,
@@ -185,7 +358,7 @@ class SmppService implements MessageReceiverListener
 		}
 
 		// Variables related to the message.
-		final List<String> parts = splitToChunks(
+		final List<String> parts = splitToSegments(
 				text,
 				alphabet
 		)
@@ -214,7 +387,7 @@ class SmppService implements MessageReceiverListener
 				println part.length()
 
 				partIds << _smppSession.submitShortMessage(
-						SERVICE_TYPE,
+						serviceType,
 						TypeOfNumber.UNKNOWN,
 						NumberingPlanIndicator.UNKNOWN,
 						from,
@@ -242,7 +415,7 @@ class SmppService implements MessageReceiverListener
 		else
 		{
 			partIds << _smppSession.submitShortMessage(
-					SERVICE_TYPE,
+					serviceType,
 					TypeOfNumber.UNKNOWN,
 					NumberingPlanIndicator.UNKNOWN,
 					from,
@@ -262,40 +435,7 @@ class SmppService implements MessageReceiverListener
 		}
 
 		partIds
-	}
-
-	Alphabet detectAlphabet(String text)
-	{
-		if (text == null)
-		{
-			throw new IllegalArgumentException('Analyzing text must be specified')
-		}
-
-		if (text.matches(UNICODE_PATTERN))
-		{
-			return Alphabet.ALPHA_UCS2
-		}
-		else if (text.matches(LATIN_EXTENDED_PATTERN))
-		{
-			return Alphabet.ALPHA_8_BIT
-		}
-
-		Alphabet.ALPHA_DEFAULT
-	}
-
-	List<String> splitToChunks(String text, Alphabet alphabet)
-	{
-		if (alphabet == Alphabet.ALPHA_DEFAULT)
-		{
-			return text.split("(?<=\\G.{$LATIN_BASIC_MESSAGE_LENGTH})") as List<String>
-		}
-		else if (alphabet == Alphabet.ALPHA_8_BIT)
-		{
-			return text.split("(?<=\\G.{$LATIN_EXTENDED_MESSAGE_LENGTH})") as List<String>
-		}
-
-		text.split("(?<=\\G.{$UNICODE_MESSAGE_LENGTH})") as List<String>
-	}
+	}*/
 
 	// ----------------------------------------------------------------------
 	// Event handlers
@@ -315,4 +455,5 @@ class SmppService implements MessageReceiverListener
 	{
 		return null //To change body of implemented methods use File | Settings | File Templates.
 	}
+
 }
