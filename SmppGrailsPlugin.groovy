@@ -23,7 +23,7 @@ class SmppGrailsPlugin {
 	def author = 'Yuriy Yarovoy'
 	def authorEmail = 'yuriy.yarovoy@gmail.com'
 
-	def developers = [[name: 'Yuriy Yarovoy', email: 'yuriy.yarovoy@gmail.com']]
+	def developers = [[name: 'Yuriy Yarovoy', email: 'yuriy.yarovoy@gmail.com'], [name: 'Sikander Hayat', github: 'sikander-wana']]
 	def issueManagement = [system: 'GitHub', url: 'https://github.com/Yarovoy/grails-smpp/issues']
 	def scm = [url: 'https://github.com/Yarovoy/grails-smpp']
 
