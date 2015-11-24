@@ -1,9 +1,9 @@
 import grails.plugin.smpp.meta.SmppPluginSupport
 
-class SmppGrailsPlugin
-{
+class SmppGrailsPlugin {
+
 	def version = '0.1-SNAPSHOT'
-	def grailsVersion = '2.0 > *'
+	def grailsVersion = '2.3 > *'
 	def dependsOn = [:]
 	def loadAfter = ['services', 'controllers']
 	def observe = ['services', 'controllers']
@@ -34,4 +34,5 @@ class SmppGrailsPlugin
 	def onChange = SmppPluginSupport.onChange
 	def onConfigChange = SmppPluginSupport.onConfigChange
 	def onShutdown = SmppPluginSupport.onShutdown
+
 }
