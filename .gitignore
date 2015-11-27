@@ -1,3 +1,5 @@
 *.iml
 .idea
+classes
+target
 grails-app/conf/Config.groovy
