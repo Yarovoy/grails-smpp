@@ -96,9 +96,9 @@ class SmppService implements MessageReceiverListener {
 					bindParameter
 			)
 
-			log.info "Connection established to $smppConfigHolder.host:$smppConfigHolder.port. Session ID is $_smppSession.sessionId."
+			log.info "Connection established to $smppConfigHolder.host:$smppConfigHolder.port. Session ID is $sessionId."
 
-			return _smppSession.sessionId
+			return sessionId
 		}
 		catch (Exception e) {
 			releaseSessionStuff()
@@ -151,12 +151,13 @@ class SmppService implements MessageReceiverListener {
 			_smppSession.connectAndBind(
 					smppConfigHolder.host,
 					smppConfigHolder.port,
-					bindParameter
+					bindParameter,
+					30000
 			)
 
-			log.info "Connection established to $smppConfigHolder.host:$smppConfigHolder.port. Session ID is $_smppSession.sessionId."
+			log.info "Connection established to $smppConfigHolder.host:$smppConfigHolder.port. Session ID is $sessionId."
 
-			return _smppSession.sessionId
+			return sessionId
 		}
 		catch (Exception e) {
 			releaseSessionStuff()
