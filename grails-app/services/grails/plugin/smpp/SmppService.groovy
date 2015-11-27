@@ -4,7 +4,7 @@ import grails.plugin.smpp.meta.SmppConfigurationHolder
 import org.jsmpp.bean.*
 import org.jsmpp.extra.SessionState
 import org.jsmpp.session.*
-import org.jsmpp.util.RelativeTimeFormatter
+import org.jsmpp.util.AbsoluteTimeFormatter
 import org.jsmpp.util.TimeFormatter
 
 import java.util.regex.Pattern
@@ -31,7 +31,7 @@ class SmppService implements MessageReceiverListener {
 
 	protected SMPPSession _smppSession
 
-	protected final TimeFormatter timeFormatter = new RelativeTimeFormatter()
+	protected final TimeFormatter timeFormatter = new AbsoluteTimeFormatter()
 
 	protected final Random random = new Random()
 
