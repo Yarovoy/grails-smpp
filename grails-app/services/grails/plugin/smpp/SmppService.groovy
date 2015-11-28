@@ -41,7 +41,7 @@ class SmppService implements MessageReceiverListener {
 
 	SmppConfigurationHolder smppConfigHolder
 
-	public String serviceType = 'CMT'
+	public String serviceType = ''
 
 	static def transactional = false
 
