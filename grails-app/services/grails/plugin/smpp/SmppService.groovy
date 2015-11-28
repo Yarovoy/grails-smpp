@@ -271,6 +271,21 @@ class SmppService implements MessageReceiverListener {
 		)
 	}
 
+	List<String> submitMessage(String phoneNumber, String message) {
+		byte[] data = message.getBytes('UTF-16BE')
+		DataCoding dataCoding = new GeneralDataCoding(Alphabet.ALPHA_UCS2)
+
+		Alphabet alphabet = detectAlphabet(message)
+		List<String> segments = splitToSegments(message, alphabet)
+		List<String> ids = []
+
+		segments.eachWithIndex { String segment, int i ->
+			ids << submitSegment(phoneNumber, data, dataCoding, i + 1, segments.size())
+		}
+
+		ids
+	}
+
 	/*List<String> submitMessage(String from, String phone, String text) throws PDUException,
 	                                                                 ResponseTimeoutException,
 	                                                                 InvalidResponseException,
