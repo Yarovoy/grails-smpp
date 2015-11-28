@@ -101,13 +101,18 @@ class SmppPluginSupport
 			systemId = SmppPluginSupport.configReader.read('grails.plugin.smpp.connection.systemId')
 			password = SmppPluginSupport.configReader.read('grails.plugin.smpp.connection.password')
 
-			sourceAddr = SmppPluginSupport.configReader.read('grails.plugin.smpp.connection.sourceAddr')
-
 			systemType = SmppPluginSupport.configReader.read('grails.plugin.smpp.connection.systemType')
 			bindType = SmppPluginSupport.parseBindType(SmppPluginSupport.configReader.read('grails.plugin.smpp.connection.bindType') as String)
 			ton = SmppPluginSupport.parseTon(SmppPluginSupport.configReader.read('grails.plugin.smpp.connection.ton') as String)
 			npi = SmppPluginSupport.parseNpi(SmppPluginSupport.configReader.read('grails.plugin.smpp.connection.npi') as String)
 			addressRange = SmppPluginSupport.configReader.read('grails.plugin.smpp.connection.addressRange')
+
+			sourceAddr = SmppPluginSupport.configReader.read('grails.plugin.smpp.source.address')
+			sourceAddrTon = SmppPluginSupport.parseTon(SmppPluginSupport.configReader.read('grails.plugin.smpp.source.ton') as String)
+			sourceAddrNpi = SmppPluginSupport.parseNpi(SmppPluginSupport.configReader.read('grails.plugin.smpp.source.npi') as String)
+
+			destAddrTon = SmppPluginSupport.parseTon(SmppPluginSupport.configReader.read('grails.plugin.smpp.destination.ton') as String)
+			destAddrNpi = SmppPluginSupport.parseNpi(SmppPluginSupport.configReader.read('grails.plugin.smpp.destination.npi') as String)
 		}
 	}
 
@@ -123,13 +128,18 @@ class SmppPluginSupport
 		smppConfigHolderBean.systemId = SmppPluginSupport.configReader.read('grails.plugin.smpp.connection.systemId')
 		smppConfigHolderBean.password = SmppPluginSupport.configReader.read('grails.plugin.smpp.connection.password')
 
-		smppConfigHolderBean.sourceAddr = SmppPluginSupport.configReader.read('grails.plugin.smpp.connection.sourceAddr')
-
 		smppConfigHolderBean.systemType = SmppPluginSupport.configReader.read('grails.plugin.smpp.connection.systemType')
 		smppConfigHolderBean.bindType = SmppPluginSupport.parseBindType(SmppPluginSupport.configReader.read('grails.plugin.smpp.connection.bindType') as String)
 		smppConfigHolderBean.ton = SmppPluginSupport.parseTon(SmppPluginSupport.configReader.read('grails.plugin.smpp.connection.ton') as String)
 		smppConfigHolderBean.npi = SmppPluginSupport.parseNpi(SmppPluginSupport.configReader.read('grails.plugin.smpp.connection.npi') as String)
 		smppConfigHolderBean.addressRange = SmppPluginSupport.configReader.read('grails.plugin.smpp.connection.addressRange') as String
+
+		smppConfigHolderBean.sourceAddr = SmppPluginSupport.configReader.read('grails.plugin.smpp.source.address')
+		smppConfigHolderBean.sourceAddrTon = SmppPluginSupport.parseTon(SmppPluginSupport.configReader.read('grails.plugin.smpp.source.ton') as String)
+		smppConfigHolderBean.sourceAddrNpi = SmppPluginSupport.parseNpi(SmppPluginSupport.configReader.read('grails.plugin.smpp.source.npi') as String)
+
+		smppConfigHolderBean.destAddrTon = SmppPluginSupport.parseTon(SmppPluginSupport.configReader.read('grails.plugin.smpp.destination.ton') as String)
+		smppConfigHolderBean.destAddrNpi = SmppPluginSupport.parseNpi(SmppPluginSupport.configReader.read('grails.plugin.smpp.destination.npi') as String)
 	}
 
 	static def onChange = { event ->

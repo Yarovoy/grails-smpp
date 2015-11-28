@@ -222,7 +222,7 @@ class SmppService implements MessageReceiverListener {
 		)
 	}
 
-	String submitSegment(String from, String to, byte[] data, DataCoding dataCoding, int currentNumber, int totalNumber) {
+	String submitSegment(String to, byte[] data, DataCoding dataCoding, int currentNumber, int totalNumber) {
 		if (totalNumber > 1) {
 			OptionalParameter sarMsgRefNum = OptionalParameters.newSarMsgRefNum((short) random.nextInt())
 			OptionalParameter sarSegmentSeqNum = OptionalParameters.newSarSegmentSeqnum(currentNumber)
@@ -230,11 +230,11 @@ class SmppService implements MessageReceiverListener {
 
 			return _smppSession.submitShortMessage(
 					serviceType,
-					TypeOfNumber.UNKNOWN,
-					NumberingPlanIndicator.UNKNOWN,
-					from,
-					TypeOfNumber.UNKNOWN,
-					NumberingPlanIndicator.UNKNOWN,
+					smppConfigHolder.sourceAddrTon,
+					smppConfigHolder.sourceAddrNpi,
+					smppConfigHolder.sourceAddr,
+					smppConfigHolder.destAddrTon,
+					smppConfigHolder.destAddrNpi,
 					to,
 					new ESMClass(),
 					(byte) 0, (byte) 1,
@@ -253,11 +253,11 @@ class SmppService implements MessageReceiverListener {
 
 		_smppSession.submitShortMessage(
 				serviceType,
-				TypeOfNumber.UNKNOWN,
-				NumberingPlanIndicator.UNKNOWN,
-				from,
-				TypeOfNumber.UNKNOWN,
-				NumberingPlanIndicator.UNKNOWN,
+				smppConfigHolder.sourceAddrTon,
+				smppConfigHolder.sourceAddrNpi,
+				smppConfigHolder.sourceAddr,
+				smppConfigHolder.destAddrTon,
+				smppConfigHolder.destAddrNpi,
 				to,
 				new ESMClass(),
 				(byte) 0, (byte) 1,
