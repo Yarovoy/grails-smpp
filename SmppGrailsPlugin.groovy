@@ -1,9 +1,9 @@
 import grails.plugin.smpp.meta.SmppPluginSupport
 
-class SmppGrailsPlugin
-{
+class SmppGrailsPlugin {
+
 	def version = '0.1-SNAPSHOT'
-	def grailsVersion = '2.0 > *'
+	def grailsVersion = '2.3 > *'
 	def dependsOn = [:]
 	def loadAfter = ['services', 'controllers']
 	def observe = ['services', 'controllers']
@@ -23,7 +23,7 @@ class SmppGrailsPlugin
 	def author = 'Yuriy Yarovoy'
 	def authorEmail = 'yuriy.yarovoy@gmail.com'
 
-	def developers = [[name: 'Yuriy Yarovoy', email: 'yuriy.yarovoy@gmail.com']]
+	def developers = [[name: 'Yuriy Yarovoy', email: 'yuriy.yarovoy@gmail.com'], [name: 'Sikander Hayat', github: 'sikander-wana']]
 	def issueManagement = [system: 'GitHub', url: 'https://github.com/Yarovoy/grails-smpp/issues']
 	def scm = [url: 'https://github.com/Yarovoy/grails-smpp']
 
@@ -34,4 +34,5 @@ class SmppGrailsPlugin
 	def onChange = SmppPluginSupport.onChange
 	def onConfigChange = SmppPluginSupport.onConfigChange
 	def onShutdown = SmppPluginSupport.onShutdown
+
 }

@@ -19,6 +19,11 @@ class SmppConfigurationHolder
 	String addressRange
 
 	String sourceAddr
+	TypeOfNumber sourceAddrTon
+	NumberingPlanIndicator sourceAddrNpi
+
+	TypeOfNumber destAddrTon
+	NumberingPlanIndicator destAddrNpi
 
 	public Boolean basicLatinEnabled = true
 	public Boolean extendedLatinEnabled = true

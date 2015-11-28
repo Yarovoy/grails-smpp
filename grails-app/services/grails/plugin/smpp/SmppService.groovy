@@ -4,13 +4,12 @@ import grails.plugin.smpp.meta.SmppConfigurationHolder
 import org.jsmpp.bean.*
 import org.jsmpp.extra.SessionState
 import org.jsmpp.session.*
-import org.jsmpp.util.RelativeTimeFormatter
+import org.jsmpp.util.AbsoluteTimeFormatter
 import org.jsmpp.util.TimeFormatter
 
 import java.util.regex.Pattern
 
-class SmppService implements MessageReceiverListener
-{
+class SmppService implements MessageReceiverListener {
 
 	// ----------------------------------------------------------------------
 	// Constants
@@ -32,7 +31,7 @@ class SmppService implements MessageReceiverListener
 
 	protected SMPPSession _smppSession
 
-	protected final TimeFormatter timeFormatter = new RelativeTimeFormatter()
+	protected final TimeFormatter timeFormatter = new AbsoluteTimeFormatter()
 
 	protected final Random random = new Random()
 
@@ -42,7 +41,7 @@ class SmppService implements MessageReceiverListener
 
 	SmppConfigurationHolder smppConfigHolder
 
-	public String serviceType = 'CMT'
+	public String serviceType = ''
 
 	static def transactional = false
 
@@ -50,13 +49,11 @@ class SmppService implements MessageReceiverListener
 	// Getters and setters
 	// ----------------------------------------------------------------------
 
-	String getSessionId()
-	{
+	String getSessionId() {
 		_smppSession?.sessionId
 	}
 
-	boolean getConnected()
-	{
+	boolean getConnected() {
 		_smppSession ? (_smppSession.sessionState == SessionState.BOUND_TX ||
 				_smppSession.sessionState == SessionState.BOUND_RX ||
 				_smppSession.sessionState == SessionState.BOUND_TRX) : false
@@ -66,10 +63,8 @@ class SmppService implements MessageReceiverListener
 	// Private methods
 	// ----------------------------------------------------------------------
 
-	private void releaseSessionStuff()
-	{
-		if (connected)
-		{
+	private void releaseSessionStuff() {
+		if (connected) {
 			_smppSession.unbindAndClose()
 			_smppSession = null
 		}
@@ -79,8 +74,7 @@ class SmppService implements MessageReceiverListener
 	// Public methods
 	// ----------------------------------------------------------------------
 
-	String connectAndBind()
-	{
+	String connectAndBind() {
 		BindParameter bindParameter = new BindParameter(
 				smppConfigHolder.bindType,
 				smppConfigHolder.systemId,
@@ -92,8 +86,7 @@ class SmppService implements MessageReceiverListener
 		)
 
 		// Connecting...
-		try
-		{
+		try {
 			log.info "Connecting to $smppConfigHolder.host:${smppConfigHolder.port}…"
 
 			_smppSession = new SMPPSession(messageReceiverListener: this)
@@ -103,12 +96,11 @@ class SmppService implements MessageReceiverListener
 					bindParameter
 			)
 
-			log.info "Connection established to $smppConfigHolder.host:$smppConfigHolder.port. Session ID is $_smppSession.sessionId."
+			log.info "Connection established to $smppConfigHolder.host:$smppConfigHolder.port. Session ID is $sessionId."
 
-			return _smppSession.sessionId
+			return sessionId
 		}
-		catch (Exception e)
-		{
+		catch (Exception e) {
 			releaseSessionStuff()
 
 			log.error "Failed to connect and bind to $smppConfigHolder.host:$smppConfigHolder.port.", e
@@ -126,10 +118,9 @@ class SmppService implements MessageReceiverListener
 	                      TypeOfNumber ton = TypeOfNumber.UNKNOWN,
 	                      NumberingPlanIndicator npi = NumberingPlanIndicator.UNKNOWN,
 	                      String addressRange = null) throws SmppServiceException,
-	                                                         UnknownHostException,
-	                                                         ConnectException,
-	                                                         IOException
-	{
+			UnknownHostException,
+			ConnectException,
+			IOException {
 		smppConfigHolder = new SmppConfigurationHolder(
 				host: host,
 				port: port,
@@ -153,23 +144,22 @@ class SmppService implements MessageReceiverListener
 		)
 
 		// Connecting...
-		try
-		{
+		try {
 			log.info "Connecting to $smppConfigHolder.host:${smppConfigHolder.port}…"
 
 			_smppSession = new SMPPSession(messageReceiverListener: this)
 			_smppSession.connectAndBind(
 					smppConfigHolder.host,
 					smppConfigHolder.port,
-					bindParameter
+					bindParameter,
+					30000
 			)
 
-			log.info "Connection established to $smppConfigHolder.host:$smppConfigHolder.port. Session ID is $_smppSession.sessionId."
+			log.info "Connection established to $smppConfigHolder.host:$smppConfigHolder.port. Session ID is $sessionId."
 
-			return _smppSession.sessionId
+			return sessionId
 		}
-		catch (Exception e)
-		{
+		catch (Exception e) {
 			releaseSessionStuff()
 
 			log.error "Failed to connect and bind to $smppConfigHolder.host:$smppConfigHolder.port.", e
@@ -178,46 +168,36 @@ class SmppService implements MessageReceiverListener
 		}
 	}
 
-	void unbindAndClose()
-	{
+	void unbindAndClose() {
 		releaseSessionStuff()
 	}
 
-	Alphabet detectAlphabet(String text)
-	{
-		if (text == null)
-		{
+	Alphabet detectAlphabet(String text) {
+		if (text == null) {
 			throw new IllegalArgumentException('Analyzing text must be specified')
 		}
 
-		if (text.matches(UNICODE_PATTERN))
-		{
+		if (text.matches(UNICODE_PATTERN)) {
 			return Alphabet.ALPHA_UCS2
-		}
-		else if (text.matches(LATIN_EXTENDED_PATTERN))
-		{
+		} else if (text.matches(LATIN_EXTENDED_PATTERN)) {
 			return Alphabet.ALPHA_8_BIT
 		}
 
 		Alphabet.ALPHA_DEFAULT
 	}
 
-	List<String> splitToSegments(String text, int maxLength, int chunkLength)
-	{
-		if (text.length() <= maxLength)
-		{
+	List<String> splitToSegments(String text, int maxLength, int chunkLength) {
+		if (text.length() <= maxLength) {
 			return [text]
 		}
 
 		text.split("(?<=\\G.{$chunkLength})") as List<String>
 	}
 
-	List<String> splitToSegments(String text, Alphabet alphabet)
-	{
+	List<String> splitToSegments(String text, Alphabet alphabet) {
 		int bitsOnChar
 
-		switch (alphabet)
-		{
+		switch (alphabet) {
 			case Alphabet.ALPHA_DEFAULT:
 				bitsOnChar = LATIN_BASIC_BITS_ON_CHAR
 				break
@@ -235,29 +215,26 @@ class SmppService implements MessageReceiverListener
 		)
 	}
 
-	List<String> splitToSegments(String text)
-	{
+	List<String> splitToSegments(String text) {
 		return splitToSegments(
 				text,
 				detectAlphabet(text)
 		)
 	}
 
-	String submitSegment(String from, String to, byte[] data, DataCoding dataCoding, int currentNumber, int totalNumber)
-	{
-		if (totalNumber > 1)
-		{
+	String submitSegment(String to, byte[] data, DataCoding dataCoding, int currentNumber, int totalNumber) {
+		if (totalNumber > 1) {
 			OptionalParameter sarMsgRefNum = OptionalParameters.newSarMsgRefNum((short) random.nextInt())
 			OptionalParameter sarSegmentSeqNum = OptionalParameters.newSarSegmentSeqnum(currentNumber)
 			OptionalParameter sarTotalSegments = OptionalParameters.newSarTotalSegments(totalNumber)
 
 			return _smppSession.submitShortMessage(
 					serviceType,
-					TypeOfNumber.UNKNOWN,
-					NumberingPlanIndicator.UNKNOWN,
-					from,
-					TypeOfNumber.UNKNOWN,
-					NumberingPlanIndicator.UNKNOWN,
+					smppConfigHolder.sourceAddrTon,
+					smppConfigHolder.sourceAddrNpi,
+					smppConfigHolder.sourceAddr,
+					smppConfigHolder.destAddrTon,
+					smppConfigHolder.destAddrNpi,
 					to,
 					new ESMClass(),
 					(byte) 0, (byte) 1,
@@ -276,11 +253,11 @@ class SmppService implements MessageReceiverListener
 
 		_smppSession.submitShortMessage(
 				serviceType,
-				TypeOfNumber.UNKNOWN,
-				NumberingPlanIndicator.UNKNOWN,
-				from,
-				TypeOfNumber.UNKNOWN,
-				NumberingPlanIndicator.UNKNOWN,
+				smppConfigHolder.sourceAddrTon,
+				smppConfigHolder.sourceAddrNpi,
+				smppConfigHolder.sourceAddr,
+				smppConfigHolder.destAddrTon,
+				smppConfigHolder.destAddrNpi,
 				to,
 				new ESMClass(),
 				(byte) 0, (byte) 1,
@@ -294,6 +271,21 @@ class SmppService implements MessageReceiverListener
 		)
 	}
 
+	List<String> submitMessage(String phoneNumber, String message) {
+		byte[] data = message.getBytes('UTF-16BE')
+		DataCoding dataCoding = new GeneralDataCoding(Alphabet.ALPHA_UCS2)
+
+		Alphabet alphabet = detectAlphabet(message)
+		List<String> segments = splitToSegments(message, alphabet)
+		List<String> ids = []
+
+		segments.eachWithIndex { String segment, int i ->
+			ids << submitSegment(phoneNumber, data, dataCoding, i + 1, segments.size())
+		}
+
+		ids
+	}
+
 	/*List<String> submitMessage(String from, String phone, String text) throws PDUException,
 	                                                                 ResponseTimeoutException,
 	                                                                 InvalidResponseException,
@@ -302,15 +294,15 @@ class SmppService implements MessageReceiverListener
 	{
 		if (!from)
 		{
-			new IllegalArgumentException('You must specify "from" parameter.')
+			new IllegalArgumentException('You should specify "from" parameter.')
 		}
 		if (!phone)
 		{
-			new IllegalArgumentException('You must specify "phone" parameter.')
+			new IllegalArgumentException('You should specify "phone" parameter.')
 		}
 		if (!text)
 		{
-			new IllegalArgumentException('You must specify "text" parameter.')
+			new IllegalArgumentException('You should specify "text" parameter.')
 		}
 
 		final TimeFormatter timeFormatter = new RelativeTimeFormatter()
@@ -441,19 +433,15 @@ class SmppService implements MessageReceiverListener
 	// Event handlers
 	// ----------------------------------------------------------------------
 
-	void onAcceptDeliverSm(DeliverSm deliverSm)
-	{
+	void onAcceptDeliverSm(DeliverSm deliverSm) {
 		//To change body of implemented methods use File | Settings | File Templates.
 	}
 
-	void onAcceptAlertNotification(AlertNotification alertNotification)
-	{
+	void onAcceptAlertNotification(AlertNotification alertNotification) {
 		//To change body of implemented methods use File | Settings | File Templates.
 	}
 
-	DataSmResult onAcceptDataSm(DataSm dataSm, Session session)
-	{
+	DataSmResult onAcceptDataSm(DataSm dataSm, Session session) {
 		return null //To change body of implemented methods use File | Settings | File Templates.
 	}
-
 }
