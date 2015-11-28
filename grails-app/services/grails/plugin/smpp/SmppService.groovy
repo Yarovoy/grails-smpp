@@ -294,15 +294,15 @@ class SmppService implements MessageReceiverListener {
 	{
 		if (!from)
 		{
-			new IllegalArgumentException('You must specify "from" parameter.')
+			new IllegalArgumentException('You should specify "from" parameter.')
 		}
 		if (!phone)
 		{
-			new IllegalArgumentException('You must specify "phone" parameter.')
+			new IllegalArgumentException('You should specify "phone" parameter.')
 		}
 		if (!text)
 		{
-			new IllegalArgumentException('You must specify "text" parameter.')
+			new IllegalArgumentException('You should specify "text" parameter.')
 		}
 
 		final TimeFormatter timeFormatter = new RelativeTimeFormatter()
@@ -444,5 +444,4 @@ class SmppService implements MessageReceiverListener {
 	DataSmResult onAcceptDataSm(DataSm dataSm, Session session) {
 		return null //To change body of implemented methods use File | Settings | File Templates.
 	}
-
 }
