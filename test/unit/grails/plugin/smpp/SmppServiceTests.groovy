@@ -11,48 +11,13 @@ import org.junit.Before
 import org.junit.Test
 
 @TestFor(SmppService)
-class SmppServiceTests
-{
-
-	String cyrillicAlphabet =
-		'АаБбВвГгДд ЕеЁёЖжЗзИи' +
-				'ЙйКкЛлМмНн ОоПпРрСсТт' +
-				'УуФфХхЦцЧч ШшЩщЪъЫыЬь' +
-				'ЭэЮюЯя'
-
-	String latinAlphabet =
-		'AaBbCcDdEe' +
-				'FfGgHhIiJj' +
-				'KkLlMmNnOo' +
-				'PpQqRrSsTt' +
-				'UuVvWwXxYy' +
-				'Zz12345678'
-
-	String latin160Symbols =
-		latinAlphabet +
-				latinAlphabet +
-				'1234567890' +
-				'1234567890' +
-				'1234567890' +
-				'1234567890'
-	String latin161Symbols = latin160Symbols + '1'
-	String latin320Symbols = latin160Symbols + latin160Symbols
-
-	String extendedLatin140 = latinAlphabet + latinAlphabet +
-			'ÀþÿÀþÿÀþÿ 1234567890'
-	String extendedLatin280 = extendedLatin140 + extendedLatin140
-
-	String unicode70Symbols = cyrillicAlphabet + '1'
-	String unicode71Symbols = unicode70Symbols + '2'
-	String unicode140Symbols = cyrillicAlphabet + cyrillicAlphabet + '12'
-
+class SmppServiceTests {
 
 	SmppService smppService
 	SmppConfigurationHolder smppConfigHolder
 
 	@Before
-	void setUp()
-	{
+	void setUp() {
 		smppConfigHolder = new SmppConfigurationHolder(
 				host: SmppConfigValues.HOST,
 				port: SmppConfigValues.PORT,
@@ -74,8 +39,7 @@ class SmppServiceTests
 	}
 
 	@After
-	void tearDown()
-	{
+	void tearDown() {
 		smppConfigHolder = null
 		smppService = null
 	}
@@ -113,19 +77,8 @@ class SmppServiceTests
 		assertFalse smppService.connected
 	}*/
 
-	@Test
-	void testDetectAlphabet()
-	{
-		assertEquals(Alphabet.ALPHA_UCS2, smppService.detectAlphabet(unicode70Symbols))
-		assertEquals(Alphabet.ALPHA_UCS2, smppService.detectAlphabet("This is Latin and a little bit of Юnic0də."))
-		assertEquals(
-				Alphabet.ALPHA_8_BIT,
-				smppService.detectAlphabet(
-						"This is the Extended Latin only with some special characters: À, Õ, ÿ."
-				)
-		)
-		assertEquals(Alphabet.ALPHA_DEFAULT, smppService.detectAlphabet(latin160Symbols))
-	}
+	/*
+
 
 	@Test
 	void testSplitToSegmentsByLengths()

@@ -1,29 +1,14 @@
 package grails.plugin.smpp
 
 import grails.plugin.smpp.meta.SmppConfigurationHolder
+import grails.plugin.smpp.utils.SmppMessageUtil
 import org.jsmpp.bean.*
 import org.jsmpp.extra.SessionState
 import org.jsmpp.session.*
 import org.jsmpp.util.AbsoluteTimeFormatter
 import org.jsmpp.util.TimeFormatter
 
-import java.util.regex.Pattern
-
 class SmppService implements MessageReceiverListener {
-
-	// ----------------------------------------------------------------------
-	// Constants
-	// ----------------------------------------------------------------------
-
-	private static final Pattern LATIN_EXTENDED_PATTERN = ~/.*[\u007f-\u00ff].*/
-	private static final Pattern UNICODE_PATTERN = ~/.*[\u0100-\ufffe].*/
-
-	private static final int LATIN_BASIC_BITS_ON_CHAR = 7 // TODO: It's only for working from Easy SMS provider.
-	private static final int LATIN_EXTENDED_BITS_ON_CHAR = 8
-	private static final int UNICODE_BITS_ON_CHAR = 16
-
-	private static final int BITS_AT_ALL = 1120
-	private static final int UDH_BITS = 48
 
 	// ----------------------------------------------------------------------
 	// Protected props
@@ -170,28 +155,6 @@ class SmppService implements MessageReceiverListener {
 
 	void unbindAndClose() {
 		releaseSessionStuff()
-	}
-
-	Alphabet detectAlphabet(String text) {
-		if (text == null) {
-			throw new IllegalArgumentException('Analyzing text must be specified')
-		}
-
-		if (text.matches(UNICODE_PATTERN)) {
-			return Alphabet.ALPHA_UCS2
-		} else if (text.matches(LATIN_EXTENDED_PATTERN)) {
-			return Alphabet.ALPHA_8_BIT
-		}
-
-		Alphabet.ALPHA_DEFAULT
-	}
-
-	List<String> splitToSegments(String text, int maxLength, int chunkLength) {
-		if (text.length() <= maxLength) {
-			return [text]
-		}
-
-		text.split("(?<=\\G.{$chunkLength})") as List<String>
 	}
 
 	List<String> splitToSegments(String text, Alphabet alphabet) {
