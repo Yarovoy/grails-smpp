@@ -196,57 +196,7 @@ class SmppServiceTests {
 		assertEquals(6, chunks[2].length())
 	}
 
-	@Test
-	void testSplitToSegments()
-	{
-		def chunks = smppService.splitToSegments(latin160Symbols)
 
-		assertEquals(1, chunks.size())
-		assertEquals(160, chunks[0].length())
-
-		chunks = smppService.splitToSegments(latin161Symbols)
-
-		assertEquals(2, chunks.size())
-		assertEquals(153, chunks[0].length())
-		assertEquals(8, chunks[1].length())
-
-		chunks = smppService.splitToSegments(latin320Symbols)
-
-		assertEquals(3, chunks.size())
-		assertEquals(153, chunks[0].length())
-		assertEquals(153, chunks[1].length())
-		assertEquals(14, chunks[2].length())
-
-		chunks = smppService.splitToSegments(extendedLatin140)
-
-		assertEquals(1, chunks.size())
-		assertEquals(140, chunks[0].length())
-
-		chunks = smppService.splitToSegments(extendedLatin280)
-
-		assertEquals(3, chunks.size())
-		assertEquals(134, chunks[0].length())
-		assertEquals(134, chunks[1].length())
-		assertEquals(12, chunks[2].length())
-
-		chunks = smppService.splitToSegments(unicode70Symbols)
-
-		assertEquals(1, chunks.size())
-		assertEquals(70, chunks[0].length())
-
-		chunks = smppService.splitToSegments(unicode71Symbols)
-
-		assertEquals(2, chunks.size())
-		assertEquals(67, chunks[0].length())
-		assertEquals(4, chunks[1].length())
-
-		chunks = smppService.splitToSegments(unicode140Symbols)
-
-		assertEquals(3, chunks.size())
-		assertEquals(67, chunks[0].length())
-		assertEquals(67, chunks[1].length())
-		assertEquals(6, chunks[2].length())
-	}
 
 	@Test
 	void testSubmitSegment()

@@ -157,34 +157,6 @@ class SmppService implements MessageReceiverListener {
 		releaseSessionStuff()
 	}
 
-	List<String> splitToSegments(String text, Alphabet alphabet) {
-		int bitsOnChar
-
-		switch (alphabet) {
-			case Alphabet.ALPHA_DEFAULT:
-				bitsOnChar = LATIN_BASIC_BITS_ON_CHAR
-				break
-			case (Alphabet.ALPHA_8_BIT):
-				bitsOnChar = LATIN_EXTENDED_BITS_ON_CHAR
-				break
-			default:
-				bitsOnChar = UNICODE_BITS_ON_CHAR
-		}
-
-		return splitToSegments(
-				text,
-				Math.floor(BITS_AT_ALL / bitsOnChar).toInteger(),
-				Math.floor((BITS_AT_ALL - UDH_BITS) / bitsOnChar).toInteger()
-		)
-	}
-
-	List<String> splitToSegments(String text) {
-		return splitToSegments(
-				text,
-				detectAlphabet(text)
-		)
-	}
-
 	String submitSegment(String to, byte[] data, DataCoding dataCoding, int currentNumber, int totalNumber) {
 		if (totalNumber > 1) {
 			OptionalParameter sarMsgRefNum = OptionalParameters.newSarMsgRefNum((short) random.nextInt())

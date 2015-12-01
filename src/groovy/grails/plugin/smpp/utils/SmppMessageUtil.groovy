@@ -38,4 +38,31 @@ class SmppMessageUtil {
 
 		Alphabet.ALPHA_DEFAULT
 	}
+
+	public static List<SmppMessageSegment> splitToSegments(String text) {
+		Alphabet alphabet = detectAlphabet(text)
+		int bitsOnChar
+
+		switch (alphabet) {
+			case Alphabet.ALPHA_DEFAULT:
+				bitsOnChar = LATIN_BASIC_BITS_ON_CHAR
+				break
+			case (Alphabet.ALPHA_8_BIT):
+				bitsOnChar = LATIN_EXTENDED_BITS_ON_CHAR
+				break
+			default:
+				bitsOnChar = UNICODE_BITS_ON_CHAR
+		}
+
+		int maxLength = Math.floor(BITS_AT_ALL / bitsOnChar).toInteger()
+		int chunkLength = Math.floor((BITS_AT_ALL - UDH_BITS) / bitsOnChar).toInteger()
+
+		if (text.length() <= maxLength) {
+			return [new SmppMessageSegment(text: text)]
+		}
+
+		text.split("(?<=\\G.{$chunkLength})").collect {
+			new SmppMessageSegment(text: it)
+		}
+	}
 }
